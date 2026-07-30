@@ -1,35 +1,3 @@
-// Ticker infini — duplique le contenu et anime via JS
-function initTickers() {
-    document.querySelectorAll('.band-track').forEach(track => {
-        const original = track.querySelector('.band-content');
-        if (!original) return;
-
-        const bandWidth = track.parentElement.offsetWidth;
-        const contentWidth = original.offsetWidth;
-        const copies = Math.ceil((bandWidth * 2) / contentWidth) + 2;
-        for (let i = 0; i < copies; i++) {
-            track.appendChild(original.cloneNode(true));
-        }
-
-        const totalWidth = original.offsetWidth * (copies + 1);
-        const reverse = track.classList.contains('band-track-reverse');
-        let pos = reverse ? -(totalWidth / 2) : 0;
-        const speed = 0.5; // px par frame
-
-        function tick() {
-            if (reverse) {
-                pos += speed;
-                if (pos >= 0) pos = -(totalWidth / 2);
-            } else {
-                pos -= speed;
-                if (pos <= -(totalWidth / 2)) pos = 0;
-            }
-            track.style.transform = `translateX(${pos}px)`;
-            requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-    });
-}
 
 // Animation compteur CO₂
 function animateCarbon() {
@@ -98,7 +66,6 @@ function initCarousel(el) {
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.carousel').forEach(initCarousel);
 
-    initTickers();
     setTimeout(animateCarbon, 800);
     const container = document.querySelector(".brutal-container");
     const menuLinks = document.querySelectorAll(".sommaire a");
