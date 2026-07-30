@@ -1,3 +1,17 @@
+// Ticker infini — duplique le contenu jusqu'à remplir 2x la largeur visible
+function initTickers() {
+    document.querySelectorAll('.band-track').forEach(track => {
+        const original = track.querySelector('.band-content');
+        if (!original) return;
+        const bandWidth = track.parentElement.offsetWidth;
+        const contentWidth = original.offsetWidth;
+        const copies = Math.ceil((bandWidth * 2) / contentWidth) + 1;
+        for (let i = 0; i < copies; i++) {
+            track.appendChild(original.cloneNode(true));
+        }
+    });
+}
+
 // Animation compteur CO₂
 function animateCarbon() {
     const el = document.querySelector('.carbon-count');
@@ -65,7 +79,7 @@ function initCarousel(el) {
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.carousel').forEach(initCarousel);
 
-    // Lance l'animation CO₂ après 800ms
+    initTickers();
     setTimeout(animateCarbon, 800);
     const container = document.querySelector(".brutal-container");
     const menuLinks = document.querySelectorAll(".sommaire a");

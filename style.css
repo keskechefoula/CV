@@ -229,36 +229,35 @@ html {
 .tech-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
     margin: 0 -5%;
 }
 
 .band {
     overflow: hidden;
     padding: 10px 0;
+}
+
+.band-green { background: var(--green); }
+.band-yellow { background: #FFE610; }
+
+.band-track {
+    display: flex;
+    width: max-content;
     white-space: nowrap;
+    animation: tickerLeft 20s linear infinite;
 }
 
-.band-green {
-    background: var(--green);
+.band-track-reverse {
+    animation: tickerRight 20s linear infinite;
 }
 
-.band-yellow {
-    background: #FFE610;
-}
-
-.band-inner {
-    display: inline-block;
+.band-content {
     font-family: 'Vevey', 'Courier New', monospace;
     font-size: 13px;
     font-weight: 900;
     color: #000;
     white-space: nowrap;
-    animation: tickerLeft 18s linear infinite;
-}
-
-.band-inner-reverse {
-    animation: tickerRight 18s linear infinite;
+    padding-right: 0;
 }
 
 @keyframes tickerLeft {
