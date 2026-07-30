@@ -234,7 +234,7 @@ html {
 
 .band {
     overflow: hidden;
-    padding: 10px 0;
+    padding: 5px 0;
 }
 
 .band-green { background: var(--green); }
