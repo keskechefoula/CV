@@ -244,11 +244,7 @@ html {
     display: flex;
     width: max-content;
     white-space: nowrap;
-    animation: tickerLeft 20s linear infinite;
-}
-
-.band-track-reverse {
-    animation: tickerRight 20s linear infinite;
+    will-change: transform;
 }
 
 .band-content {
@@ -257,17 +253,7 @@ html {
     font-weight: 900;
     color: #000;
     white-space: nowrap;
-    padding-right: 0;
-}
-
-@keyframes tickerLeft {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-}
-
-@keyframes tickerRight {
-    from { transform: translateX(-50%); }
-    to   { transform: translateX(0); }
+    flex-shrink: 0;
 }
 
 .contact-text {
