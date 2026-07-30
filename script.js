@@ -86,10 +86,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isMobile = () => window.innerWidth <= 1024;
 
+    // Coupe le son/lecture de toutes les vidéos et iframes (Instagram, YouTube, Vimeo, etc.)
+    function stopAllMedia(root) {
+        const scope = root || document;
+        scope.querySelectorAll('video, audio').forEach(m => {
+            try { m.pause(); m.currentTime = 0; } catch (e) {}
+        });
+        scope.querySelectorAll('iframe').forEach(f => {
+            const src = f.src;
+            if (src) { f.src = ''; f.src = src; }
+        });
+    }
+
     // Boutons retour (mobile) — tous les .gallery-back + #btn-back-rairsun
     document.querySelectorAll('.gallery-back, #btn-back-rairsun').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
+            stopAllMedia();
             projects.forEach(p => p.classList.remove('selected'));
             galleryGroups.forEach(g => g.classList.remove('active'));
             container.classList.remove('show-gallery', 'show-rairsun');
@@ -111,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 project.classList.remove("selected");
                 container.classList.remove("show-gallery");
                 container.classList.remove("show-rairsun");
-                setTimeout(() => galleryGroups.forEach(g => g.classList.remove("active")), 400);
+                setTimeout(() => { stopAllMedia(); galleryGroups.forEach(g => g.classList.remove("active")); }, 400);
                 return;
             }
 
@@ -162,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Clic sur col2 (pas sur un projet) → col1 revient
                 projects.forEach(p => p.classList.remove("selected"));
                 container.classList.remove("show-rairsun");
-                setTimeout(() => galleryGroups.forEach(g => g.classList.remove("active")), 400);
+                setTimeout(() => { stopAllMedia(); galleryGroups.forEach(g => g.classList.remove("active")); }, 400);
             } else if (!clickedOnImages && !clickedOnProject) {
                 resetAll();
             }
@@ -181,4 +194,33 @@ document.addEventListener("DOMContentLoaded", () => {
         container.classList.remove("show-content");
         setTimeout(() => galleryGroups.forEach(g => g.classList.remove("active")), 400);
     }
+
+    // Auto-pause vidéos/iframes quand elles sortent du viewport
+    const mediaObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+                const el = entry.target;
+                if (el.tagName === 'VIDEO' || el.tagName === 'AUDIO') {
+                    try { el.pause(); } catch (e) {}
+                } else if (el.tagName === 'IFRAME') {
+                    const src = el.src;
+                    if (src) { el.src = ''; el.src = src; }
+                }
+            }
+        });
+    }, { threshold: 0.1 });
+
+    function observeMedia() {
+        document.querySelectorAll('video, audio, iframe').forEach(el => {
+            mediaObserver.observe(el);
+        });
+    }
+
+    observeMedia();
+
+    // Re-observer après chargement d'embeds Instagram
+    const embedObserver = new MutationObserver(() => observeMedia());
+    document.querySelectorAll('.insta-grid').forEach(grid => {
+        embedObserver.observe(grid, { childList: true, subtree: true });
+    });
 });

@@ -46,6 +46,9 @@ html {
 .brutal-container.show-content {
     grid-template-columns: 35% 65% 0%;
 }
+.brutal-container.show-content .home-sketch {
+    display: none;
+}
 
 /* État 3 : La totale (Sommaire + Contenu + Images) */
 .brutal-container.show-gallery {
@@ -91,6 +94,8 @@ html {
     padding: 80px 10%;
     background-color: #ffffff;
     border-right: 1px solid var(--green);
+    position: relative;
+    overflow: hidden;
 }
 
 .sticky-content {
@@ -404,6 +409,40 @@ html {
 .sticky-images {
     position: sticky;
     top: 80px;
+}
+
+/* Sketch sphère — calque dans la colonne d'accueil */
+.home-sketch {
+    position: absolute;
+    top: 35%;
+    right: 32%;
+    transform: translate(50%, -50%);
+    opacity: 1;
+    transition: opacity 0.35s ease;
+    line-height: 0;
+    z-index: 5;
+}
+
+.home-sketch canvas {
+    display: block;
+}
+
+.brutal-container.show-content .home-sketch,
+.brutal-container.show-gallery .home-sketch,
+.brutal-container.show-rairsun .home-sketch {
+    pointer-events: none;
+}
+
+/* Disparaît dès qu'une section s'ouvre (la colonne se rétrécit) */
+.brutal-container.show-content .home-sketch,
+.brutal-container.show-gallery .home-sketch,
+.brutal-container.show-rairsun .home-sketch {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+    .home-sketch { display: none; }
 }
 
 .project-img {

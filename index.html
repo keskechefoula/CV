@@ -64,6 +64,10 @@
         
         <!-- COLONNE 1 : Sommaire Fixe (Gauche) -->
         <aside class="left-col">
+
+            <!-- Animation sphère (calque, visible en accueil uniquement) -->
+            <div id="home-sketch" class="home-sketch"><canvas id="sphere-canvas"></canvas></div>
+
             <div class="sticky-content">
                 <div class="identity">
                     <div class="logo">LOUKA.L</div>
@@ -240,7 +244,7 @@
         <!-- COLONNE 3 : Galerie d'images (Gérée par le JS) -->
         <aside class="images-col" id="images-column">
             <div class="sticky-images">
-                
+
                 <!-- Panneau RaYSun -->
                 <div class="gallery-group rairsun-panel" id="gallery-p1">
                     <button class="mobile-back-btn" id="btn-back-rairsun"><span></span><span></span><span></span></button>
@@ -556,5 +560,82 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- Sphère de particules (Canvas natif, aucun lib externe) -->
+    <script>
+    (function() {
+        const cnv = document.getElementById('sphere-canvas');
+        if (!cnv) return;
+        const ctx = cnv.getContext('2d');
+        const isMobile = /iPhone|iPod|Android/i.test(navigator.userAgent);
+        const PARTICLES = 8000;
+        const ATTRACTION = 0.01;
+        const DAMPING = 0.9;
+        const REPEL_STRENGTH = 28;
+
+        let W, H, radius_, repel_radius;
+        let mouseX = -9999, mouseY = -9999;
+        let angle = 0;
+        const pts = new Array(PARTICLES);
+        for (let i = 0; i < PARTICLES; i++) pts[i] = { i, x: 0, y: 0, vx: 0, vy: 0 };
+
+        function size() {
+            if (isMobile) return { w: 360, h: 360, r: 160, rr: 60 };
+            const w = Math.max(400, Math.min(window.innerWidth * 0.55, 1400));
+            const h = Math.max(400, Math.min(window.innerHeight * 0.72, 1100));
+            const r = Math.max(120, Math.min(window.innerHeight * 0.16, 240));
+            return { w, h, r, rr: r * 0.5 };
+        }
+
+        function resize() {
+            const s = size();
+            W = s.w; H = s.h; radius_ = s.r; repel_radius = s.rr;
+            cnv.width = W; cnv.height = H;
+            cnv.style.width = W + 'px'; cnv.style.height = H + 'px';
+            for (const p of pts) {
+                p.x = Math.sin(p.i + angle) * Math.sin(p.i * p.i) * radius_;
+                p.y = Math.cos(p.i * p.i) * radius_;
+                p.vx = 0; p.vy = 0;
+            }
+        }
+
+        cnv.addEventListener('mousemove', e => {
+            const r = cnv.getBoundingClientRect();
+            mouseX = e.clientX - r.left - W / 2;
+            mouseY = e.clientY - r.top - H / 2;
+        });
+        cnv.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+        window.addEventListener('resize', resize);
+        resize();
+
+        const rr2 = () => repel_radius * repel_radius;
+
+        function frame() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#3BFF6A';
+            const cx = W / 2, cy = H / 2;
+            const rrsq = rr2();
+            for (const p of pts) {
+                const hx = Math.sin(p.i + angle) * Math.sin(p.i * p.i) * radius_;
+                const hy = Math.cos(p.i * p.i) * radius_;
+                p.vx += (hx - p.x) * ATTRACTION;
+                p.vy += (hy - p.y) * ATTRACTION;
+                const dx = p.x - mouseX, dy = p.y - mouseY;
+                const d2 = dx * dx + dy * dy;
+                if (d2 > 0.1 && d2 < rrsq) {
+                    const d = Math.sqrt(d2);
+                    const f = REPEL_STRENGTH * (1 - d / repel_radius) / d;
+                    p.vx += dx * f; p.vy += dy * f;
+                }
+                p.vx *= DAMPING; p.vy *= DAMPING;
+                p.x += p.vx; p.y += p.vy;
+                ctx.fillRect(cx + p.x, cy + p.y, 2, 2);
+            }
+            angle += 0.01;
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    })();
+    </script>
 </body>
 </html>
