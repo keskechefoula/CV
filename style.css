@@ -1,0 +1,1122 @@
+/* Fonts */
+@font-face {
+    font-family: 'Vevey';
+    src: url('fonts/Vevey-HumanKind.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Alfphabet';
+    src: url('fonts/Alfphabet-I.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --green: #3BFF6A;
+}
+
+/* Réinitialisation radicale */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Alfphabet', 'Courier New', Courier, monospace, sans-serif;
+    color: #000000;
+}
+
+html {
+    scroll-behavior: smooth;
+    background-color: #ffffff;
+}
+
+/* --- CONFIGURATION DES COLONNES (ÉVOLUTIVE) --- */
+
+/* État 1 : Une seule colonne visible au départ (Sommaire) */
+.brutal-container {
+    display: grid;
+    grid-template-columns: 100% 0% 0%;
+    height: 100vh;
+    overflow: hidden;
+    transition: grid-template-columns 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* État 2 : Le sommaire + le contenu textuel (Déclenché par le menu) */
+.brutal-container.show-content {
+    grid-template-columns: 35% 65% 0%;
+}
+
+/* État 3 : La totale (Sommaire + Contenu + Images) */
+.brutal-container.show-gallery {
+    grid-template-columns: 25% 45% 30%;
+}
+
+/* État RairSun : col1 cachée, col2 étroite, col3 large */
+.brutal-container.show-rairsun {
+    grid-template-columns: 0% 30% 70%;
+}
+
+/* --- AJUSTEMENTS POUR LE MASQUAGE DU CONTENU --- */
+
+/* On cache proprement le contenu des colonnes 2 et 3 quand elles sont fermées */
+.right-col, .images-col {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* On les affiche dès que leur état est actif */
+.brutal-container.show-content .right-col,
+.brutal-container.show-gallery .right-col,
+.brutal-container.show-gallery .images-col,
+.brutal-container.show-rairsun .right-col,
+.brutal-container.show-rairsun .images-col {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Col1 disparait en état rairsun */
+.left-col {
+    transition: opacity 0.3s ease;
+}
+.brutal-container.show-rairsun .left-col {
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* --- STYLE DE LA COLONNE DE GAUCHE (SOMMAIRE) --- */
+.left-col {
+    padding: 80px 10%;
+    background-color: #ffffff;
+    border-right: 1px solid var(--green);
+}
+
+.sticky-content {
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.logo {
+    font-family: 'Vevey', 'Courier New', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-top: 5px;
+    color: #666;
+}
+
+.sommaire ul {
+    list-style: none;
+}
+
+.sommaire li {
+    margin-bottom: 20px;
+}
+
+.sommaire a {
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.sommaire a:hover {
+    background-color: var(--green);
+    color: #000000;
+    padding: 2px 5px;
+}
+
+.status {
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+/* --- STYLE DE LA COLONNE DU MILIEU --- */
+.right-col {
+    padding: 0 5%;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--green);
+}
+
+.brutal-section {
+    padding: 100px 0;
+}
+
+.section-title {
+    font-family: 'Vevey', 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 60px;
+}
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+/* --- INTERACTION SUR LES PROJETS --- */
+.project-item {
+    cursor: pointer;
+    padding: 20px;
+    margin: -20px;
+    transition: background 0.2s ease;
+}
+
+.project-item:hover {
+    background-color: #f5f5f5;
+}
+
+.project-item.selected {
+    background-color: var(--green);
+}
+
+.project-item.selected h3,
+.project-item.selected p,
+.project-item.selected .project-link {
+    color: #000000;
+}
+
+.project-item h3 {
+    font-family: 'Vevey', 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+.cv-item h3 {
+    font-family: 'Vevey', 'Courier New', monospace;
+}
+
+.project-item p {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.project-link {
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.cv-item {
+    margin-bottom: 40px;
+}
+
+.date {
+    font-size: 12px;
+    font-weight: 900;
+    color: #666;
+}
+
+.cv-item h3 {
+    font-size: 22px;
+    margin: 5px 0 10px 0;
+}
+
+.tech-list {
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.8;
+}
+
+.contact-text {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.contact-link {
+    font-size: 28px;
+    font-weight: 900;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.contact-link:hover {
+    background: var(--green);
+    color: #000;
+}
+
+/* --- STYLE DE LA COLONNE IMAGES --- */
+.images-col {
+    padding: 80px 10% 80px 0;
+    display: none;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.brutal-container.show-gallery .images-col,
+.brutal-container.show-rairsun .images-col {
+    display: block;
+}
+
+.brutal-container.show-rairsun .images-col {
+    padding: 0;
+}
+
+/* --- PANNEAU RAIRSUN --- */
+.rairsun-panel {
+    padding: 60px 8% 80px;
+    overflow-y: auto;
+    height: 100vh;
+    flex-direction: column;
+    gap: 0;
+}
+
+.rairsun-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 60px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--green);
+}
+
+.rairsun-nav a {
+    font-size: 13px;
+    font-weight: 900;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rairsun-nav a:hover {
+    background-color: var(--green);
+    color: #000;
+    padding: 2px 6px;
+}
+
+.rairsun-project {
+    margin-bottom: 80px;
+}
+
+#rs-logos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#rs-logos .logos-row {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+.logo-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-label {
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    display: block;
+}
+
+.logo-col .logo-charte-img {
+    width: 100%;
+    max-width: none;
+}
+
+.rairsun-project h3 {
+    font-size: 22px;
+    font-weight: 900;
+    margin: 60px 0 16px;
+    text-align: center;
+}
+
+.rairsun-project h3:first-child {
+    margin-top: 0;
+}
+
+.gallery-group {
+    display: none;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.gallery-group.active {
+    display: flex;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.insta-embed-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.insta-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+    align-items: center;
+}
+
+.sticky-images {
+    position: sticky;
+    top: 80px;
+}
+
+.project-img {
+    width: 100%;
+    height: auto;
+    filter: grayscale(100%);
+    background-color: #eee;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+}
+
+.project-img:hover {
+    filter: grayscale(0%);
+}
+
+.img-caption {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    text-align: right;
+}
+
+/* --- CARBON WIDGET --- */
+.carbon-widget {
+    border-top: 1px solid var(--green);
+    padding-top: 20px;
+}
+
+.carbon-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.carbon-value {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    margin-bottom: 12px;
+}
+
+.carbon-count {
+    font-family: 'Vevey', 'Courier New', monospace;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: -2px;
+}
+
+.carbon-unit {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--green);
+}
+
+.carbon-bar-track {
+    width: 100%;
+    height: 2px;
+    background: #e8e8e8;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.carbon-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--green);
+    transition: width 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.carbon-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #aaa;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.carbon-equiv {
+    font-size: 10px;
+    color: #bbb;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Caché sur mobile */
+@media (max-width: 1024px) {
+    .carbon-widget {
+        display: none;
+    }
+}
+
+/* Bouton retour mobile (caché sur desktop) */
+.mobile-back-btn {
+    display: none;
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 1024px) {
+    .mobile-back-btn {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 999;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .mobile-back-btn span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: var(--green);
+    }
+
+    /* Layout mobile : colonnes empilées */
+    .brutal-container,
+    .brutal-container.show-content,
+    .brutal-container.show-gallery,
+    .brutal-container.show-rairsun {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* Col2 et col3 toujours visibles sur mobile */
+    .right-col, .images-col {
+        opacity: 1;
+        pointer-events: auto;
+        height: auto;
+        overflow-y: visible;
+    }
+
+    /* images-col cachée par défaut sur mobile */
+    .images-col {
+        display: none;
+        padding: 60px 5% 40px;
+    }
+
+    /* images-col visible uniquement quand une galerie est active */
+    .brutal-container.show-gallery .images-col,
+    .brutal-container.show-rairsun .images-col {
+        display: block;
+    }
+
+    /* Masquer col1 et col2 quand galerie ou rairsun actif */
+    .brutal-container.show-gallery .left-col,
+    .brutal-container.show-gallery .right-col,
+    .brutal-container.show-rairsun .left-col,
+    .brutal-container.show-rairsun .right-col {
+        display: none;
+    }
+
+    /* Galeries toutes cachées, seule l'active apparaît */
+    .gallery-group {
+        display: none;
+    }
+    .gallery-group.active {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow-y: visible;
+    }
+
+    /* RaYSun panel : caché sauf quand show-rairsun actif */
+    .rairsun-panel {
+        display: none;
+        height: auto;
+        overflow-y: visible;
+        padding: 60px 6% 60px;
+        max-height: none;
+    }
+    .brutal-container.show-rairsun .rairsun-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Logos côte à côte → colonne */
+    #rs-logos .logos-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    .logo-col {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    /* iPhones côte à côte → colonne */
+    .mockup-phones {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Posts Instagram → colonne pleine largeur */
+    .insta-grid {
+        padding: 10px;
+    }
+    .insta-grid .instagram-media {
+        max-width: 100% !important;
+    }
+}
+
+/* Nouveaux styles spécifiques pour tes données */
+.role {
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    background-color: var(--green);
+    color: #000;
+    display: inline-block;
+    padding: 2px 6px;
+}
+
+.degree {
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.cv-item p, .project-item p:not(.role) {
+    margin-top: 8px;
+    color: #444;
+    max-width: 600px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ============================================
+   MOCKUP IPHONE
+   ============================================ */
+
+.mockup-phones {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 60px;
+}
+
+.mockup-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.mockup-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.iphone {
+    width: 220px;
+    background: #111;
+    border-radius: 36px;
+    padding: 10px;
+    box-shadow:
+        0 0 0 1px #2a2a2a,
+        0 0 0 3px #1a1a1a,
+        0 20px 50px rgba(0,0,0,0.4);
+}
+
+.iphone-notch {
+    width: 80px;
+    height: 20px;
+    background: #111;
+    border-radius: 0 0 14px 14px;
+    margin: 0 auto 6px;
+}
+
+.iphone-screen {
+    background: #fff;
+    border-radius: 26px;
+    overflow: hidden;
+}
+
+.iphone-status {
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 14px 3px;
+    font-size: 8px;
+    font-weight: 700;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* LinkedIn UI */
+.li-header {
+    background: #fff;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.li-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    padding: 4px;
+}
+
+.li-avatar svg {
+    width: 100%;
+    height: auto;
+}
+
+.li-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: #000;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+.li-meta {
+    font-size: 8px;
+    color: #888;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+.li-follow {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 700;
+    color: #0a66c2;
+    font-family: 'Helvetica Neue', sans-serif;
+    white-space: nowrap;
+}
+
+/* Carousel */
+.carousel {
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    height: 275px;
+}
+
+.carousel.grabbing { cursor: grabbing; }
+
+.carousel-slides {
+    display: flex;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    height: 100%;
+}
+
+.carousel-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.carousel-dots {
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px;
+}
+
+.cdot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background 0.2s;
+    display: inline-block;
+}
+
+.cdot.active { background: #0a66c2; }
+
+.li-reactions {
+    background: #fff;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+    font-size: 8px;
+    color: #555;
+    font-weight: 600;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* ============================================
+   LOGOS RÉGIONAUX
+   ============================================ */
+
+.logo-brand {
+    margin-bottom: 48px;
+    border: 1px solid #e8e8e8;
+    overflow: hidden;
+}
+
+.logo-brand-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-brand-name {
+    font-family: 'Satoshi', 'Helvetica Neue', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.logo-brand-palette {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.logo-brand-palette span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.logo-charte-img {
+    width: 100%;
+    max-width: 565px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* ============================================
+   DECK CHARTE GRAPHIQUE RAYSUN
+   ============================================ */
+
+.rairsun-project {
+    font-family: 'Satoshi', 'Courier New', sans-serif;
+}
+
+/* SLIDES */
+.deck-slide {
+    padding: 56px 0;
+    border-bottom: 1px solid #e8e8e8;
+}
+.deck-slide:last-child {
+    border-bottom: none;
+}
+.deck-slide--dark {
+    background: #0B0B0D;
+    padding: 56px 32px;
+    margin: 0 -8%;
+}
+
+/* COVER */
+.deck-cover {
+    padding-top: 0;
+}
+.deck-gradient-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #FFE610, #FF8001);
+    margin-bottom: 48px;
+}
+.deck-hero {
+    font-family: 'Satoshi', sans-serif;
+    font-size: clamp(52px, 8vw, 80px);
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 1;
+    color: #0B0B0D;
+    margin: 0 0 24px;
+}
+.deck-hero-sun {
+    color: #FF8001;
+}
+.deck-tagline {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #0B0B0D;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.deck-sub {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.6;
+}
+
+/* LABEL */
+.deck-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 28px;
+    font-family: 'Courier New', monospace;
+}
+
+/* LOGO */
+.deck-logo-white {
+    background: #F5F5F7;
+    padding: 40px;
+    margin-bottom: 2px;
+}
+.deck-logo-white svg,
+.deck-logo-dark svg {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+.deck-logo-dark {
+    background: #0B0B0D;
+    padding: 40px;
+    margin-bottom: 20px;
+}
+
+/* ÉLÉMENT GRAPHIQUE */
+.deck-fig-display {
+    background: #F5F5F7;
+    padding: 48px 32px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+.deck-fig-display svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.deck-rules-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.deck-rule-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13px;
+    color: #444;
+}
+.deck-rule-dot {
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.deck-rule-dot--ok { color: #FF8001; }
+.deck-rule-dot--no { color: #999; }
+
+/* PALETTE */
+.deck-colors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.deck-swatch {
+    aspect-ratio: 1;
+    width: 100%;
+}
+.deck-color-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 8px;
+    color: #0B0B0D;
+}
+.deck-color-hex {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+}
+.deck-color-role {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+.deck-gradient-swatch {
+    margin-top: 16px;
+}
+.deck-gradient-bar-full {
+    height: 32px;
+    background: linear-gradient(90deg, #FFE610, #FF8001);
+    width: 100%;
+}
+
+/* TYPOGRAPHIE */
+.deck-type-sample {
+    margin-bottom: 0;
+}
+.deck-type-meta {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+.deck-type-bold {
+    font-family: 'Satoshi', sans-serif;
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    color: #0B0B0D;
+}
+.deck-type-medium {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #0B0B0D;
+    line-height: 1.3;
+}
+.deck-type-regular {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: #555;
+    line-height: 1.65;
+    max-width: 420px;
+}
+
+/* RÈGLE TEXTE */
+.deck-rule {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+.deck-rule--ok { color: #FF8001; font-style: normal; font-weight: 500; margin-bottom: 6px; }
+.deck-rule--no { color: #bbb; font-style: normal; margin-bottom: 6px; }
+
+/* MISE EN PAGE */
+.deck-principle-headline {
+    font-family: 'Satoshi', sans-serif;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    color: #0B0B0D;
+    margin-bottom: 40px;
+}
+.deck-principles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.deck-principle {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    font-size: 14px;
+    color: #444;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.deck-principle:last-child { border-bottom: none; }
+.deck-principle-num {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FF8001;
+    flex-shrink: 0;
+}
+
+/* PHOTOGRAPHIE */
+.deck-photo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+.deck-tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    background: #F5F5F7;
+    color: #0B0B0D;
+}
+.deck-photo-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* TON VISUEL */
+.deck-tone-words {
+    font-family: 'Satoshi', sans-serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.8;
+    margin-bottom: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.deck-quote {
+    font-family: 'Satoshi', sans-serif;
+    font-size: 13px;
+    font-style: italic;
+    color: #666;
+    line-height: 1.7;
+    border-left: 2px solid #FF8001;
+    padding-left: 16px;
+}

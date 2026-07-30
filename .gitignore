@@ -1,0 +1,8 @@
+.DS_Store
+.claude/
+frontend-design/
+ponytail/
+spec-kit/
+rairsun/logos/svg_tmp/
+rairsun/logos/*.png
+rairsun/tall/slide*.png
