@@ -133,6 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isMobile()) {
                     window.scrollTo({ top: 0, behavior: 'instant' });
                 }
+                // Force Instagram à retraiter les embeds dans la galerie active
+                if (window.instgrm) {
+                    window.instgrm.Embeds.process();
+                }
             }
         });
     });
