@@ -99,14 +99,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Lazy loading Instagram embeds + Facebook iframes
-    let igScriptLoaded = false;
-    function loadIgScript() {
-        if (igScriptLoaded) return;
-        igScriptLoaded = true;
-        const s = document.createElement('script');
-        s.src = 'https://www.instagram.com/embed.js';
-        s.async = true;
-        document.body.appendChild(s);
+    let igScriptEl = null;
+    const igCallbacks = [];
+
+    function loadIgScript(cb) {
+        if (window.instgrm) { cb(); return; }
+        igCallbacks.push(cb);
+        if (igScriptEl) return;
+        igScriptEl = document.createElement('script');
+        igScriptEl.src = 'https://www.instagram.com/embed.js';
+        igScriptEl.async = true;
+        igScriptEl.onload = () => {
+            igCallbacks.forEach(fn => fn());
+            igCallbacks.length = 0;
+        };
+        document.body.appendChild(igScriptEl);
     }
 
     function loadLazyEmbeds(gallery) {
@@ -128,8 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 bq.appendChild(a);
                 grid.appendChild(bq);
             });
-            loadIgScript();
-            setTimeout(() => { if (window.instgrm) window.instgrm.Embeds.process(grid); }, 100);
+            loadIgScript(() => { if (window.instgrm) window.instgrm.Embeds.process(grid); });
         });
 
         gallery.querySelectorAll('[data-lazy-fb]').forEach(wrap => {
