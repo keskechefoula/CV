@@ -182,17 +182,38 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Boutons retour (mobile) — tous les .gallery-back + #btn-back-rairsun
-    document.querySelectorAll('.gallery-back, #btn-back-rairsun').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
+    // Navigation retour contextuelle (un niveau à la fois)
+    function goBack() {
+        if (container.classList.contains('show-gallery') || container.classList.contains('show-rairsun')) {
             stopAllMedia();
             projects.forEach(p => p.classList.remove('selected'));
             galleryGroups.forEach(g => g.classList.remove('active'));
             container.classList.remove('show-gallery', 'show-rairsun');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!container.classList.contains('show-content')) {
+                container.classList.add('show-content');
+            }
+            if (isMobile()) window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (container.classList.contains('show-content')) {
+            container.classList.remove('show-content');
+        }
+    }
+
+    // Boutons retour (mobile) — tous les .gallery-back + #btn-back-rairsun
+    document.querySelectorAll('.gallery-back, #btn-back-rairsun').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goBack();
         });
     });
+
+    // Bouton menu global (desktop + mobile)
+    const globalMenuBtn = document.getElementById('global-menu-btn');
+    if (globalMenuBtn) {
+        globalMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goBack();
+        });
+    }
 
     // 2. CLIC SUR LES PROJETS (Ouvre la 3e colonne)
     projects.forEach(project => {
@@ -246,6 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 4. ÉCOUTEUR GLOBAL
     document.addEventListener("click", (e) => {
+        if (e.target.closest('.global-menu-btn')) return;
         const clickedOnMiddle = e.target.closest('.right-col');
         const clickedOnLeft = e.target.closest('.left-col');
         const clickedOnImages = e.target.closest('.images-col');

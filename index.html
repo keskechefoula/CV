@@ -70,7 +70,10 @@
 <body>
 
     <div class="brutal-container">
-        
+
+        <!-- Bouton menu global (retour arrière contextuel) -->
+        <button class="global-menu-btn" id="global-menu-btn"><span></span><span></span><span></span></button>
+
         <!-- COLONNE 1 : Sommaire Fixe (Gauche) -->
         <aside class="left-col">
 
@@ -213,7 +216,7 @@
 
             <!-- Section Skills -->
             <section id="stack" class="brutal-section">
-                <h2 class="section-title">03 / TOOLS</h2>
+                <h2 class="section-title">TOOLS</h2>
                 <div class="tech-list">
                     <div class="tool-row">
                         <span class="tool-cat">GRAPHISME</span>
@@ -242,8 +245,8 @@
                 </div>
             </section>
 
-            <!-- Section Contact -->
-            <section id="contact" class="brutal-section">
+            <!-- Section Contact (séparée) -->
+            <section id="contact" class="brutal-section section-contact">
                 <h2 class="section-title">CONTACT</h2>
                 <a href="mailto:l.louka@outlook.com" class="contact-link">L.LOUKA@OUTLOOK.COM ↗</a>
             </section>
@@ -261,13 +264,15 @@
                         <p class="rairsun-tagline">RaYSun crée des communautés d'énergie locales qui connectent entreprises, collectivités et copropriétés en Belgique, en France et au Benelux.</p>
                         <a href="https://www.raysun.solar/" target="_blank" rel="noopener" class="rairsun-link">raysun.solar ↗</a>
                     </div>
+                    <img src="RaYSun/1784880527549.jpeg" alt="Équipe RaYSun" class="rairsun-team-photo">
+
                     <nav class="rairsun-nav">
                         <a href="#rs-linkedin">01 / IDENTITÉ GRAPHIQUE LINKEDIN</a>
                         <a href="#rs-logos">02 / LOGOS RÉGIONAUX</a>
                     </nav>
 
                     <div class="rairsun-project" id="rs-linkedin">
-
+                        <h3 class="rairsun-section-title">IDENTITÉ GRAPHIQUE LINKEDIN</h3>
 
                         <div class="mockup-phones">
 
@@ -305,12 +310,12 @@
                                         </div>
                                         <div class="carousel" id="carousel-tall">
                                             <div class="carousel-slides">
-                                                <div class="carousel-slide"><img src="rairsun/tall/1.svg" alt="Slide 1" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/tall/2.svg" alt="Slide 2" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/tall/slide3.png" alt="Slide 3" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/tall/4.svg" alt="Slide 4" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/tall/5.svg" alt="Slide 5" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/tall/6.svg" alt="Slide 6" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/1.svg" alt="Slide 1" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/2.svg" alt="Slide 2" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/slide3.png" alt="Slide 3" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/4.svg" alt="Slide 4" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/5.svg" alt="Slide 5" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/tall/6.svg" alt="Slide 6" draggable="false"></div>
                                             </div>
                                             <div class="carousel-dots">
                                                 <span class="cdot active"></span><span class="cdot"></span><span class="cdot"></span>
@@ -359,12 +364,12 @@
                                         </div>
                                         <div class="carousel" id="carousel-sq">
                                             <div class="carousel-slides">
-                                                <div class="carousel-slide"><img src="rairsun/square/slide1.png" alt="Slide 1" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/square/slide2.png" alt="Slide 2" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/square/slide3.png" alt="Slide 3" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/square/slide4.png" alt="Slide 4" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/square/slide5.png" alt="Slide 5" draggable="false"></div>
-                                                <div class="carousel-slide"><img src="rairsun/square/slide6.png" alt="Slide 6" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide1.png" alt="Slide 1" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide2.png" alt="Slide 2" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide3.png" alt="Slide 3" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide4.png" alt="Slide 4" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide5.png" alt="Slide 5" draggable="false"></div>
+                                                <div class="carousel-slide"><img src="RaYSun/square/slide6.png" alt="Slide 6" draggable="false"></div>
                                             </div>
                                             <div class="carousel-dots">
                                                 <span class="cdot active"></span><span class="cdot"></span><span class="cdot"></span>
@@ -384,21 +389,22 @@
                     </div><!-- /rs-linkedin -->
 
                     <div class="rairsun-project" id="rs-logos">
+                        <h3 class="rairsun-section-title">LOGOS RÉGIONAUX</h3>
 
                         <div class="logos-row">
                             <div class="logo-col">
                                 <a href="https://www.citywatt.brussels/" target="_blank" rel="noopener">
-                                    <img src="rairsun/logos/citywatt.svg" alt="CityWatt" class="logo-charte-img">
+                                    <img src="RaYSun/logos/citywatt.svg" alt="CityWatt" class="logo-charte-img">
                                 </a>
                             </div>
                             <div class="logo-col">
                                 <a href="https://www.samenwatt.energy/" target="_blank" rel="noopener">
-                                    <img src="rairsun/logos/samenwatt.svg" alt="SamenWatt" class="logo-charte-img">
+                                    <img src="RaYSun/logos/samenwatt.svg" alt="SamenWatt" class="logo-charte-img">
                                 </a>
                             </div>
                             <div class="logo-col">
                                 <a href="https://www.wallowatt.energy/" target="_blank" rel="noopener">
-                                    <img src="rairsun/logos/wallowatt.svg" alt="WalloWatt" class="logo-charte-img">
+                                    <img src="RaYSun/logos/wallowatt.svg" alt="WalloWatt" class="logo-charte-img">
                                 </a>
                             </div>
                         </div>

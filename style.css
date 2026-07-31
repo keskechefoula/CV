@@ -272,6 +272,19 @@ html {
     max-width: 600px;
 }
 
+.tool-row {
+    transition: color 0.15s ease;
+}
+
+.tool-row:hover {
+    border-bottom-color: var(--green);
+}
+
+.tool-row:hover .tool-cat,
+.tool-row:hover .tool-items {
+    color: var(--green);
+}
+
 .tool-cat {
     font-family: 'Vevey', 'Courier New', monospace;
     font-size: 11px;
@@ -279,12 +292,14 @@ html {
     letter-spacing: 0.1em;
     color: #000;
     white-space: nowrap;
+    transition: color 0.15s ease;
 }
 
 .tool-items {
     font-size: 13px;
     color: #444;
     line-height: 1.6;
+    transition: color 0.15s ease;
 }
 
 .contact-text {
@@ -668,6 +683,62 @@ html {
     }
 }
 
+/* Séparateur visuel entre Tools et Contact */
+.section-contact {
+    border-top: 1px solid var(--green);
+}
+
+/* Photo équipe RaYSun */
+.rairsun-team-photo {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 40px;
+}
+
+/* Titres de section RaYSun (LinkedIn / Logos) */
+.rairsun-section-title {
+    font-family: 'Vevey', 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--green);
+    margin-bottom: 30px;
+}
+
+/* Bouton menu global (desktop + mobile) */
+.global-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.global-menu-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--green);
+}
+
+/* Sur desktop: visible seulement quand galerie/rairsun ouvert */
+.brutal-container.show-gallery .global-menu-btn {
+    display: flex;
+    left: calc(25% + 20px);
+}
+.brutal-container.show-rairsun .global-menu-btn {
+    display: flex;
+    left: calc(0% + 20px);
+}
+
 /* Bouton retour mobile (caché sur desktop) */
 .mobile-back-btn {
     display: none;
@@ -694,6 +765,19 @@ html {
         width: 24px;
         height: 2px;
         background: var(--green);
+    }
+
+    /* Menu global visible sur mobile seulement quand galerie/rairsun ouverte */
+    .brutal-container.show-gallery .global-menu-btn,
+    .brutal-container.show-rairsun .global-menu-btn {
+        display: flex;
+        left: 20px;
+    }
+
+    /* Cacher les anciens boutons retour mobile pour éviter le doublon */
+    .brutal-container.show-gallery .mobile-back-btn,
+    .brutal-container.show-rairsun .mobile-back-btn {
+        display: none !important;
     }
 
     /* Layout mobile : colonnes empilées */
@@ -800,6 +884,10 @@ html {
     font-weight: bold;
     text-transform: uppercase;
     margin-top: 2px;
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
 }
 
 .cv-item p, .project-item p:not(.role) {
