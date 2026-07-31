@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <g fill="none" stroke="#3BFF6A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cadre gauche + bas + partie droite basse -->
+    <path d="M130,76 L130,76 C104,76 84,96 84,122 L84,350 C84,376 104,396 130,396 L382,396 C408,396 428,376 428,350 L428,260"/>
+    <!-- Cadre partie droite haute -->
+    <path d="M362,76 L130,76"/>
+    <!-- Fissure zigzag -->
+    <polyline points="428,260 390,200 428,140 390,100 382,76"/>
+    <!-- Soleil -->
+    <circle cx="200" cy="180" r="36"/>
+    <!-- Montagnes -->
+    <path d="M84,350 L180,240 L260,300 L428,200"/>
+  </g>
+</svg>
