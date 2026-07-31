@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
             try { m.pause(); m.currentTime = 0; } catch (e) {}
         });
         scope.querySelectorAll('iframe').forEach(f => {
+            if (f.closest('.insta-grid')) return;
             const src = f.src;
             if (src) { f.src = ''; f.src = src; }
         });
@@ -255,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const el = entry.target;
                 if (el.tagName === 'VIDEO' || el.tagName === 'AUDIO') {
                     try { el.pause(); } catch (e) {}
-                } else if (el.tagName === 'IFRAME') {
+                } else if (el.tagName === 'IFRAME' && !el.closest('.insta-grid')) {
                     const src = el.src;
                     if (src) { el.src = ''; el.src = src; }
                 }
