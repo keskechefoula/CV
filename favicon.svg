@@ -1,15 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#ffffff"/>
-  <g fill="none" stroke="#3BFF6A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Cadre gauche + bas + partie droite basse -->
-    <path d="M130,76 L130,76 C104,76 84,96 84,122 L84,350 C84,376 104,396 130,396 L382,396 C408,396 428,376 428,350 L428,260"/>
-    <!-- Cadre partie droite haute -->
-    <path d="M362,76 L130,76"/>
-    <!-- Fissure zigzag -->
-    <polyline points="428,260 390,200 428,140 390,100 382,76"/>
-    <!-- Soleil -->
-    <circle cx="200" cy="180" r="36"/>
-    <!-- Montagnes -->
-    <path d="M84,350 L180,240 L260,300 L428,200"/>
+  <g transform="translate(256,270)" fill="none" stroke="#3BFF6A" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-150,-100 C-150,-130 -130,-150 -100,-150 L40,-150"/>
+    <path d="M-150,-100 L-150,100 C-150,130 -130,150 -100,150 L100,150 C130,150 150,130 150,100 L150,30"/>
+    <polyline points="150,30 110,-20 150,-70 110,-110 80,-150"/>
+    <line x1="40" y1="-150" x2="80" y2="-150"/>
+    <circle cx="-50" cy="-50" r="35"/>
+    <path d="M-150,100 Q-80,20 -20,60 Q40,100 150,30"/>
   </g>
 </svg>

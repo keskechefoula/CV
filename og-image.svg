@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#ffffff"/>
   <g transform="translate(600,315) scale(1.4)" fill="none" stroke="#3BFF6A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M-140,-108 C-140,-126 -126,-140 -108,-140 L100,-140"/>
-    <path d="M-140,-108 L-140,108 C-140,126 -126,140 -108,140 L108,140 C126,140 140,126 140,108 L140,16"/>
-    <polyline points="140,16 112,-28 140,-72 112,-108 100,-140"/>
-    <circle cx="-40" cy="-44" r="28"/>
-    <path d="M-140,108 L-44,12 L24,56 L140,16"/>
+    <path d="M-150,-100 C-150,-130 -130,-150 -100,-150 L40,-150"/>
+    <path d="M-150,-100 L-150,100 C-150,130 -130,150 -100,150 L100,150 C130,150 150,130 150,100 L150,30"/>
+    <polyline points="150,30 110,-20 150,-70 110,-110 80,-150"/>
+    <line x1="40" y1="-150" x2="80" y2="-150"/>
+    <circle cx="-50" cy="-50" r="35"/>
+    <path d="M-150,100 Q-80,20 -20,60 Q40,100 150,30"/>
   </g>
 </svg>
