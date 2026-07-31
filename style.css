@@ -1,4 +1,8 @@
 /* Scrollbar */
+html {
+    overflow-y: scroll;
+}
+
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--green) transparent;
@@ -6,6 +10,7 @@
 
 *::-webkit-scrollbar {
     width: 4px;
+    -webkit-appearance: none;
 }
 
 *::-webkit-scrollbar-track {
@@ -15,6 +20,7 @@
 *::-webkit-scrollbar-thumb {
     background: var(--green);
     border-radius: 2px;
+    min-height: 30px;
 }
 
 /* Fonts */
