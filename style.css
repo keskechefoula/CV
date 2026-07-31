@@ -305,6 +305,37 @@ html {
     gap: 0;
 }
 
+.rairsun-intro {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--green);
+}
+
+.rairsun-tagline {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 10px;
+}
+
+.rairsun-link {
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--green);
+    padding: 4px 10px;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.rairsun-link:hover {
+    background-color: var(--green);
+    color: #000;
+}
+
 .rairsun-nav {
     display: flex;
     flex-direction: column;
@@ -404,6 +435,35 @@ html {
     gap: 24px;
     padding: 20px;
     align-items: center;
+}
+
+.insta-lazy-wrap {
+    width: 100%;
+    min-height: 200px;
+    position: relative;
+}
+
+.insta-lazy-wrap.insta-failed blockquote {
+    display: none;
+}
+
+.insta-lazy-wrap.insta-failed::after {
+    content: 'Voir sur Instagram ↗';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid var(--green);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+}
+
+.insta-lazy-wrap.insta-failed {
+    cursor: pointer;
 }
 
 .sticky-images {

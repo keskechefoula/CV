@@ -123,6 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!posts || grid.dataset.loaded) return;
             grid.dataset.loaded = '1';
             posts.split(',').forEach(id => {
+                const wrap = document.createElement('div');
+                wrap.className = 'insta-lazy-wrap';
                 const bq = document.createElement('blockquote');
                 bq.className = 'instagram-media';
                 bq.dataset.instgrmPermalink = 'https://www.instagram.com/p/' + id + '/?utm_source=ig_embed&utm_campaign=loading';
@@ -134,9 +136,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 a.rel = 'noopener';
                 a.textContent = 'Voir sur Instagram';
                 bq.appendChild(a);
-                grid.appendChild(bq);
+                wrap.appendChild(bq);
+                grid.appendChild(wrap);
             });
-            loadIgScript(() => { if (window.instgrm) window.instgrm.Embeds.process(grid); });
+            loadIgScript(() => {
+                if (window.instgrm) window.instgrm.Embeds.process(grid);
+                setTimeout(() => {
+                    grid.querySelectorAll('.insta-lazy-wrap').forEach(wrap => {
+                        if (!wrap.querySelector('iframe')) {
+                            wrap.classList.add('insta-failed');
+                            const link = wrap.querySelector('a');
+                            if (link) {
+                                wrap.addEventListener('click', () => window.open(link.href, '_blank'));
+                            }
+                        }
+                    });
+                }, 8000);
+            });
         });
 
         gallery.querySelectorAll('[data-lazy-fb]').forEach(wrap => {
