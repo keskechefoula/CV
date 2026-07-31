@@ -98,6 +98,56 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Lazy loading Instagram embeds + Facebook iframes
+    let igScriptLoaded = false;
+    function loadIgScript() {
+        if (igScriptLoaded) return;
+        igScriptLoaded = true;
+        const s = document.createElement('script');
+        s.src = 'https://www.instagram.com/embed.js';
+        s.async = true;
+        document.body.appendChild(s);
+    }
+
+    function loadLazyEmbeds(gallery) {
+        gallery.querySelectorAll('.insta-grid[data-lazy-posts]').forEach(grid => {
+            const posts = grid.dataset.lazyPosts;
+            if (!posts || grid.dataset.loaded) return;
+            grid.dataset.loaded = '1';
+            posts.split(',').forEach(id => {
+                const bq = document.createElement('blockquote');
+                bq.className = 'instagram-media';
+                bq.dataset.instgrmPermalink = 'https://www.instagram.com/p/' + id + '/?utm_source=ig_embed&utm_campaign=loading';
+                bq.dataset.instgrmVersion = '14';
+                bq.style.cssText = 'background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15);margin:0;min-width:260px;padding:0;width:100%;';
+                const a = document.createElement('a');
+                a.href = 'https://www.instagram.com/p/' + id + '/';
+                a.target = '_blank';
+                a.rel = 'noopener';
+                a.textContent = 'Voir sur Instagram';
+                bq.appendChild(a);
+                grid.appendChild(bq);
+            });
+            loadIgScript();
+            setTimeout(() => { if (window.instgrm) window.instgrm.Embeds.process(grid); }, 100);
+        });
+
+        gallery.querySelectorAll('[data-lazy-fb]').forEach(wrap => {
+            if (wrap.dataset.loaded) return;
+            wrap.dataset.loaded = '1';
+            const iframe = document.createElement('iframe');
+            iframe.src = wrap.dataset.lazyFb;
+            iframe.width = '400';
+            iframe.height = '710';
+            iframe.style.cssText = 'border:none;overflow:hidden;max-width:100%;';
+            iframe.scrolling = 'no';
+            iframe.frameBorder = '0';
+            iframe.allowFullscreen = true;
+            iframe.allow = 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share';
+            wrap.appendChild(iframe);
+        });
+    }
+
     // Boutons retour (mobile) — tous les .gallery-back + #btn-back-rairsun
     document.querySelectorAll('.gallery-back, #btn-back-rairsun').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -146,10 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isMobile()) {
                     window.scrollTo({ top: 0, behavior: 'instant' });
                 }
-                // Force Instagram à retraiter les embeds dans la galerie active
-                if (window.instgrm) {
-                    window.instgrm.Embeds.process();
-                }
+                loadLazyEmbeds(activeGallery);
             }
         });
     });
