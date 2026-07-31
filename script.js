@@ -122,36 +122,47 @@ document.addEventListener("DOMContentLoaded", () => {
             const posts = grid.dataset.lazyPosts;
             if (!posts || grid.dataset.loaded) return;
             grid.dataset.loaded = '1';
+            const postUrl = id => 'https://www.instagram.com/p/' + id + '/';
             posts.split(',').forEach(id => {
                 const wrap = document.createElement('div');
                 wrap.className = 'insta-lazy-wrap';
+
+                const loader = document.createElement('div');
+                loader.className = 'insta-loader';
+                const dots = document.createElement('div');
+                dots.className = 'insta-loader-dots';
+                dots.innerHTML = '<span></span><span></span><span></span>';
+                const link = document.createElement('a');
+                link.href = postUrl(id);
+                link.target = '_blank';
+                link.rel = 'noopener';
+                link.textContent = 'Voir sur Instagram ↗';
+                loader.appendChild(dots);
+                loader.appendChild(link);
+
                 const bq = document.createElement('blockquote');
                 bq.className = 'instagram-media';
-                bq.dataset.instgrmPermalink = 'https://www.instagram.com/p/' + id + '/?utm_source=ig_embed&utm_campaign=loading';
+                bq.dataset.instgrmPermalink = postUrl(id) + '?utm_source=ig_embed&utm_campaign=loading';
                 bq.dataset.instgrmVersion = '14';
                 bq.style.cssText = 'background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15);margin:0;min-width:260px;padding:0;width:100%;';
-                const a = document.createElement('a');
-                a.href = 'https://www.instagram.com/p/' + id + '/';
-                a.target = '_blank';
-                a.rel = 'noopener';
-                a.textContent = 'Voir sur Instagram';
-                bq.appendChild(a);
+
+                wrap.appendChild(loader);
                 wrap.appendChild(bq);
                 grid.appendChild(wrap);
             });
             loadIgScript(() => {
                 if (window.instgrm) window.instgrm.Embeds.process(grid);
-                setTimeout(() => {
-                    grid.querySelectorAll('.insta-lazy-wrap').forEach(wrap => {
-                        if (!wrap.querySelector('iframe')) {
-                            wrap.classList.add('insta-failed');
-                            const link = wrap.querySelector('a');
-                            if (link) {
-                                wrap.addEventListener('click', () => window.open(link.href, '_blank'));
-                            }
-                        }
+                const checkLoaded = setInterval(() => {
+                    grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded):not(.insta-failed)').forEach(wrap => {
+                        if (wrap.querySelector('iframe')) wrap.classList.add('insta-loaded');
                     });
-                }, 8000);
+                }, 500);
+                setTimeout(() => {
+                    clearInterval(checkLoaded);
+                    grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded)').forEach(wrap => {
+                        wrap.classList.add('insta-failed');
+                    });
+                }, 10000);
             });
         });
 

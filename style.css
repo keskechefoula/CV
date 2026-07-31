@@ -443,27 +443,70 @@ html {
     position: relative;
 }
 
-.insta-lazy-wrap.insta-failed blockquote {
-    display: none;
+.insta-lazy-wrap:not(.insta-loaded):not(.insta-failed) .insta-loader {
+    display: flex;
 }
 
-.insta-lazy-wrap.insta-failed::after {
-    content: 'Voir sur Instagram ↗';
-    display: flex;
+.insta-loader {
+    display: none;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    min-height: 120px;
-    border: 1px solid var(--green);
-    font-size: 13px;
+    gap: 16px;
+    min-height: 200px;
+}
+
+.insta-loader-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.insta-loader-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: insta-bounce 1.2s ease-in-out infinite;
+}
+
+.insta-loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.insta-loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+.insta-loader a {
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid var(--green);
+    padding: 4px 10px;
+    transition: background-color 0.15s, color 0.15s;
 }
 
-.insta-lazy-wrap.insta-failed {
-    cursor: pointer;
+.insta-loader a:hover {
+    background: var(--green);
+    color: #000;
+}
+
+@keyframes insta-bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-14px); }
+}
+
+.insta-lazy-wrap.insta-loaded .insta-loader {
+    display: none;
+}
+
+.insta-lazy-wrap.insta-failed .insta-loader-dots {
+    display: none;
+}
+
+.insta-lazy-wrap.insta-failed .insta-loader {
+    display: flex;
+}
+
+.insta-lazy-wrap.insta-failed blockquote {
+    display: none;
 }
 
 .sticky-images {
