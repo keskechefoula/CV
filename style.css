@@ -1,3 +1,22 @@
+/* Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--green) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--green);
+    border-radius: 2px;
+}
+
 /* Fonts */
 @font-face {
     font-family: 'Vevey';
