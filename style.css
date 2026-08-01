@@ -762,6 +762,20 @@ html {
     width: auto;
 }
 
+.step-diamond {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #2eaa70;
+    transform: rotate(45deg);
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.rairsun-solar-story + .rairsun-project {
+    margin-top: 80px;
+}
+
 .rairsun-solar-desc {
     font-size: 13px;
     color: #444;

@@ -115,6 +115,9 @@
     let scrollMode = false;
     let scrollPhase = 0;
     let scrollT = 0;
+    let showDiamonds = false;
+    let autoForest = false;
+    const FOREST_CI = COMMUNES_DATA.findIndex(c => c.name === 'Forest');
 
     const SHORT = COMMUNES_DATA.map(c => c.name
       .replace('Berchem-Ste-Agathe', 'Berchem')
@@ -205,11 +208,11 @@
         scrollMode = true;
         progress = 0;
         let leg = document.getElementById('legend');
-        leg.style.left = 'auto';
-        leg.style.right = '12px';
-        leg.style.bottom = 'auto';
-        leg.style.top = '50%';
-        leg.style.transform = 'translateY(-50%)';
+        leg.style.left = '50%';
+        leg.style.transform = 'translateX(-50%)';
+        leg.style.bottom = '10px';
+        leg.style.right = 'auto';
+        leg.style.top = 'auto';
         noLoop();
       }
     }
@@ -223,22 +226,37 @@
           progress = scrollT * TOTAL_STEPS;
           done = scrollT >= 1;
           doneT = 0;
+          showDiamonds = false;
+          autoForest = false;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 2) {
           progress = TOTAL_STEPS;
           done = true;
           doneT = scrollT;
+          showDiamonds = true;
+          autoForest = false;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 3) {
           progress = TOTAL_STEPS;
           done = true;
           doneT = 1;
+          showDiamonds = true;
+          autoForest = true;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 4) {
           progress = TOTAL_STEPS;
           done = true;
           doneT = 1;
+          showDiamonds = true;
+          autoForest = false;
           targetRotX = scrollT * PI * 0.42;
+        } else if (scrollPhase === 5) {
+          progress = TOTAL_STEPS;
+          done = true;
+          doneT = 1;
+          showDiamonds = true;
+          autoForest = false;
+          targetRotX = PI * 0.42;
         }
       } else {
         if (!done) {
@@ -265,8 +283,8 @@
       let isTilted = absRotX > 0.25;
 
       let cx = width / 2;
-      let cy = height * 0.38 + (isTilted ? -absRotX * 60 : 0);
-      let R = min(width, height) * 0.26;
+      let cy = height * (inIframe ? 0.33 : 0.38) + (isTilted ? -absRotX * 60 : 0);
+      let R = min(width, height) * (inIframe ? 0.23 : 0.26);
 
       translate(cx, cy);
 
@@ -365,7 +383,7 @@
       }
 
       // Energy community diamonds
-      if (done && typeof ENERGY_COMMUNITIES !== 'undefined') {
+      if (done && typeof ENERGY_COMMUNITIES !== 'undefined' && (!scrollMode || showDiamonds)) {
         let ecAlpha = map(doneT, 0.3, 0.8, 0, 230, true);
         let lastYi = NY - 1;
         for (let ci = 0; ci < N; ci++) {
@@ -426,6 +444,14 @@
         if (d < bestDist) { bestDist = d; best = p; }
       }
 
+      // Auto-highlight Forest in phase 3
+      if (scrollMode && autoForest && FOREST_CI >= 0) {
+        let lastYi = NY - 1;
+        let fp = getPoint3D(lastYi, FOREST_CI, R);
+        best = { ci: FOREST_CI, yi: lastYi, x: fp.x + cx, y: fp.y + cy, pct: getPct(COMMUNES_DATA[FOREST_CI], YEARS[lastYi]), year: YEARS[lastYi] };
+        hoveredCommune = FOREST_CI;
+      }
+
       let tip = document.getElementById('tooltip');
       if (best && done && !isDragging) {
         hoveredCommune = best.ci;
@@ -439,8 +465,10 @@
         tip.querySelector('.t-irr').textContent = YEARLY_IRRADIATION[best.year].total + ' kWh/m²';
         tip.querySelector('.t-bar-fill').style.width = (best.pct / 20 * 100) + '%';
         tip.style.display = 'block';
-        tip.style.left = Math.min(mx + 16, width - 220) + 'px';
-        tip.style.top = (my - 10) + 'px';
+        let tipX = (scrollMode && autoForest) ? best.x : mx;
+        let tipY = (scrollMode && autoForest) ? best.y : my;
+        tip.style.left = Math.min(tipX + 16, width - 220) + 'px';
+        tip.style.top = (tipY - 10) + 'px';
       } else {
         hoveredCommune = -1;
         tip.style.display = 'none';
