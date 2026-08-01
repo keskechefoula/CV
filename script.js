@@ -218,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. CLIC SUR LES PROJETS (Ouvre la 3e colonne)
     projects.forEach(project => {
         project.addEventListener("click", (e) => {
-            if (e.target.classList.contains('project-link')) return;
             e.stopPropagation();
 
             const targetProject = project.getAttribute("data-project");
