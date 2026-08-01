@@ -204,7 +204,12 @@
       if (inIframe) {
         scrollMode = true;
         progress = 0;
-        document.getElementById('legend').style.display = 'none';
+        let leg = document.getElementById('legend');
+        leg.style.left = 'auto';
+        leg.style.right = '12px';
+        leg.style.bottom = 'auto';
+        leg.style.top = '50%';
+        leg.style.transform = 'translateY(-50%)';
         noLoop();
       }
     }

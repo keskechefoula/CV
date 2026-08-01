@@ -748,6 +748,7 @@ html {
     background: rgba(255,255,255,0.85);
     padding: 8px 12px;
     border-radius: 6px;
+    display: inline-block;
 }
 
 .solar-step .rairsun-section-title {
@@ -756,6 +757,9 @@ html {
     padding: 4px 10px;
     border-radius: 4px;
     margin-bottom: 8px;
+    border-bottom: none;
+    padding-bottom: 4px;
+    width: auto;
 }
 
 .rairsun-solar-desc {
