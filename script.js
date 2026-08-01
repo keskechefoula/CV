@@ -326,19 +326,56 @@ document.addEventListener("DOMContentLoaded", () => {
         embedObserver.observe(grid, { childList: true, subtree: true });
     });
 
-    // Pause/resume solar viz iframe when not visible
-    const solarWrap = document.querySelector('.rairsun-solar-wrap');
-    if (solarWrap) {
-        const solarIframe = solarWrap.querySelector('iframe');
-        const solarObs = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (solarIframe.contentWindow) {
-                    solarIframe.contentWindow.postMessage(
-                        entry.isIntersecting ? 'solar-resume' : 'solar-pause', '*'
-                    );
+    // Scroll-driven solar viz
+    const solarStory = document.querySelector('.rairsun-solar-story');
+    if (solarStory) {
+        const solarIframe = solarStory.querySelector('iframe');
+        const steps = solarStory.querySelectorAll('.solar-step[data-phase]');
+        const panel = solarStory.closest('.rairsun-panel');
+
+        function updateSolarScroll() {
+            if (!solarIframe.contentWindow) return;
+            const storyRect = solarStory.getBoundingClientRect();
+
+            if (storyRect.bottom < 0 || storyRect.top > window.innerHeight) {
+                solarIframe.contentWindow.postMessage('solar-pause', '*');
+                return;
+            }
+            solarIframe.contentWindow.postMessage('solar-resume', '*');
+
+            let bestPhase = 0;
+            let bestT = 0;
+
+            steps.forEach(step => {
+                const phase = parseInt(step.dataset.phase);
+                if (isNaN(phase)) return;
+                const rect = step.getBoundingClientRect();
+                const viewH = window.innerHeight;
+                const t = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH + rect.height)));
+
+                if (t >= 1 && phase > bestPhase) {
+                    bestPhase = phase;
+                    bestT = 1;
+                } else if (t > 0 && t < 1 && phase > bestPhase) {
+                    bestPhase = phase;
+                    bestT = t;
                 }
             });
-        }, { threshold: 0.1 });
-        solarObs.observe(solarWrap);
+
+            if (bestPhase === 0) bestPhase = 1;
+            solarIframe.contentWindow.postMessage({
+                mode: 'scroll', phase: bestPhase, t: bestT
+            }, '*');
+        }
+
+        if (panel) {
+            panel.addEventListener('scroll', updateSolarScroll, { passive: true });
+        }
+        window.addEventListener('scroll', updateSolarScroll, { passive: true });
+
+        // Fire once after iframe loads
+        solarIframe.addEventListener('load', () => {
+            setTimeout(updateSolarScroll, 100);
+        });
     }
 });

@@ -137,6 +137,11 @@
     let lastMX = 0, lastMY = 0;
     let autoTiltDone = false;
 
+    // Scroll-driven mode
+    let scrollMode = false;
+    let scrollPhase = 0;
+    let scrollT = 0;
+
     const SHORT = COMMUNES_DATA.map(c => c.name
       .replace('Berchem-Ste-Agathe', 'Berchem')
       .replace('Molenbeek-St-Jean', 'Molenbeek')
@@ -216,32 +221,58 @@
       return { x: proj.x, y: proj.y, z: proj.z, pct, a };
     }
 
+    let inIframe = (window !== window.parent);
+
     function setup() {
       createCanvas(windowWidth, windowHeight);
       createLabels();
       textFont('Helvetica Neue');
+      if (inIframe) {
+        scrollMode = true;
+        progress = 0;
+        noLoop();
+      }
     }
 
     function draw() {
       clear();
       background(255);
 
-      if (!done) {
-        progress = min(progress + speed, TOTAL_STEPS);
-        if (progress >= TOTAL_STEPS) { done = true; doneT = 0; tiltPhase = 0; }
-      } else {
-        doneT = min(doneT + 0.012, 1);
-        if (tiltPhase === 0 && doneT > 0.6) tiltPhase = 1;
-        if (tiltPhase === 1 && !autoTiltDone) {
+      if (scrollMode) {
+        if (scrollPhase === 1) {
+          progress = scrollT * TOTAL_STEPS;
+          done = scrollT >= 1;
+          doneT = 0;
+          targetRotX = 0; targetRotZ = 0;
+        } else if (scrollPhase === 2) {
+          progress = TOTAL_STEPS;
+          done = true;
+          doneT = 0;
+          targetRotX = scrollT * PI * 0.42;
+        } else if (scrollPhase === 3) {
+          progress = TOTAL_STEPS;
+          done = true;
+          doneT = scrollT;
           targetRotX = PI * 0.42;
-          tiltT = min(tiltT + 0.008, 1);
-          if (tiltT >= 1) { tiltPhase = 2; autoTiltDone = true; }
+        }
+      } else {
+        if (!done) {
+          progress = min(progress + speed, TOTAL_STEPS);
+          if (progress >= TOTAL_STEPS) { done = true; doneT = 0; tiltPhase = 0; }
+        } else {
+          doneT = min(doneT + 0.012, 1);
+          if (tiltPhase === 0 && doneT > 0.6) tiltPhase = 1;
+          if (tiltPhase === 1 && !autoTiltDone) {
+            targetRotX = PI * 0.42;
+            tiltT = min(tiltT + 0.008, 1);
+            if (tiltT >= 1) { tiltPhase = 2; autoTiltDone = true; }
+          }
         }
       }
 
       if (!isDragging) {
-        rotX += (targetRotX - rotX) * 0.06;
-        rotZ += (targetRotZ - rotZ) * 0.06;
+        rotX += (targetRotX - rotX) * 0.08;
+        rotZ += (targetRotZ - rotZ) * 0.08;
       }
 
       let absRotX = Math.abs(rotX % (TWO_PI));
@@ -484,10 +515,17 @@
       e.stopPropagation(); targetRotX += 0.4;
     });
 
-    // Pause when not visible (parent sends postMessage)
     window.addEventListener('message', function(e) {
       if (e.data === 'solar-pause') noLoop();
       else if (e.data === 'solar-resume') loop();
+      else if (e.data && e.data.mode === 'scroll') {
+        scrollMode = true;
+        scrollPhase = e.data.phase;
+        scrollT = e.data.t;
+        if (!isLooping()) loop();
+      } else if (e.data === 'solar-freeplay') {
+        scrollMode = false;
+      }
     });
   </script>
 </body>
