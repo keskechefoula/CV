@@ -31,6 +31,12 @@
       position: absolute; pointer-events: none; z-index: 15;
       font-size: 11px; color: rgba(0,0,0,0.6); white-space: nowrap; font-weight: 500;
       transform: translate(-50%, -50%); transition: color 0.2s, font-size 0.2s;
+      cursor: default;
+    }
+    .commune-label.interactive {
+      pointer-events: auto;
+      cursor: pointer;
+      padding: 4px 8px;
     }
     .commune-label .c-pct { display: block; font-size: 9px; color: rgba(0,0,0,0.4); text-align: center; margin-top: 1px; }
     .commune-label.hovered { color: #e06020; font-weight: 700; font-size: 13px; }
@@ -38,11 +44,12 @@
 
     body { position: relative; }
     #legend {
-      position: absolute; bottom: 12px; left: 12px; z-index: 20;
+      position: absolute; bottom: 12px; left: 12px; right: auto; z-index: 20;
       background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08);
       border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #333;
       line-height: 1.8; min-width: 220px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
     }
     #legend .legend-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: #111; }
     #legend .legend-row { display: flex; align-items: center; gap: 10px; }
@@ -56,6 +63,26 @@
     #legend .legend-diamond-lg { width: 11px; height: 11px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
     #legend .diamond-scale { display: flex; align-items: center; gap: 6px; margin-top: 2px; margin-left: 2px; }
     #legend .diamond-scale span { font-size: 10px; color: #888; }
+    /* Scroll story (iframe): always bottom-right, clear of the viewport edge */
+    body.in-iframe #legend {
+      left: auto; right: 20px; bottom: 80px; top: auto; transform: none;
+    }
+
+    #phase-dots {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      z-index: 20; display: none; flex-direction: column; gap: 10px;
+    }
+    #phase-dots .dot {
+      width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.25);
+      background: transparent; transition: background 0.3s, border-color 0.3s;
+    }
+    #phase-dots .dot.active {
+      background: rgba(0,0,0,0.55); border-color: rgba(0,0,0,0.55);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .commune-label { transition: none; }
+    }
 
   </style>
 </head>
@@ -81,7 +108,16 @@
       <div class="legend-diamond-lg"></div><span>40</span>
       <span style="color:#aaa;margin-left:4px;">projets</span>
     </div>
-    <div style="font-size:10px; color:#999; margin-top:6px;">Glisser pour tourner · Survol pour details</div>
+    <div id="legend-hint" style="font-size:10px; color:#999; margin-top:6px;">Glisser pour tourner · Survol pour details</div>
+  </div>
+
+  <div id="phase-dots">
+    <div class="dot" data-phase="1"></div>
+    <div class="dot" data-phase="2"></div>
+    <div class="dot" data-phase="3"></div>
+    <div class="dot" data-phase="4"></div>
+    <div class="dot" data-phase="5"></div>
+    <div class="dot" data-phase="6"></div>
   </div>
 
   <div id="labels-container"></div>
@@ -117,6 +153,7 @@
     let scrollT = 0;
     let showDiamonds = false;
     let autoForest = false;
+    let labelHovered = false;
     const FOREST_CI = COMMUNES_DATA.findIndex(c => c.name === 'Forest');
 
     const SHORT = COMMUNES_DATA.map(c => c.name
@@ -136,6 +173,14 @@
         let el = document.createElement('div');
         el.className = 'commune-label';
         el.innerHTML = SHORT[ci] + '<span class="c-pct">' + COMMUNES_DATA[ci].pct[2026] + '%</span>';
+        (function(idx) {
+          el.addEventListener('mouseenter', function() {
+            if (done) { hoveredCommune = idx; labelHovered = true; redraw(); }
+          });
+          el.addEventListener('mouseleave', function() {
+            labelHovered = false; hoveredCommune = -1; redraw();
+          });
+        })(ci);
         container.appendChild(el);
         labelEls.push(el);
       }
@@ -207,11 +252,16 @@
       if (inIframe) {
         scrollMode = true;
         progress = 0;
-        let leg = document.getElementById('legend');
-        leg.style.left = 'auto';
-        leg.style.right = '12px';
-        leg.style.bottom = 'auto';
-        leg.style.top = '60%';
+        document.body.classList.add('in-iframe');
+        document.getElementById('phase-dots').style.display = 'flex';
+        document.getElementById('legend-hint').remove();
+        for (let i = 0; i < labelEls.length; i++) {
+          labelEls[i].classList.add('interactive');
+        }
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          progress = TOTAL_STEPS;
+          done = true; doneT = 1;
+        }
         noLoop();
       }
     }
@@ -222,17 +272,20 @@
 
       if (scrollMode) {
         if (scrollPhase === 1) {
-          progress = scrollT * TOTAL_STEPS;
-          done = scrollT >= 1;
+          // Skip first 20% so the title has time to appear before 2019 draws
+          let t1 = max(0, (scrollT - 0.2) / 0.8);
+          progress = t1 * TOTAL_STEPS;
+          done = t1 >= 1;
           doneT = 0;
           showDiamonds = false;
           autoForest = false;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 2) {
+          // Diamonds/details reveal starts with the "Survolez" text (phase 3), not here
           progress = TOTAL_STEPS;
           done = true;
           doneT = scrollT;
-          showDiamonds = true;
+          showDiamonds = false;
           autoForest = false;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 3) {
@@ -240,22 +293,32 @@
           done = true;
           doneT = 1;
           showDiamonds = true;
-          autoForest = scrollT > 0.4;
+          autoForest = false;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 4) {
+          // Details panel visible for the whole of step 4
           progress = TOTAL_STEPS;
           done = true;
           doneT = 1;
           showDiamonds = true;
-          autoForest = false;
+          autoForest = true;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 5) {
+          // Details gone; tilt starts in the last 40% of step 5
           progress = TOTAL_STEPS;
           done = true;
           doneT = 1;
           showDiamonds = true;
           autoForest = false;
-          targetRotX = scrollT * PI * 0.42;
+          targetRotX = constrain(map(scrollT, 0.6, 1, 0, HALF_PI * 0.5), 0, HALF_PI * 0.5);
+        } else if (scrollPhase === 6) {
+          // Tilt completes to 90 deg over the first 40% of step 6
+          progress = TOTAL_STEPS;
+          done = true;
+          doneT = 1;
+          showDiamonds = true;
+          autoForest = false;
+          targetRotX = constrain(map(scrollT, 0, 0.4, HALF_PI * 0.5, HALF_PI), HALF_PI * 0.5, HALF_PI);
         }
       } else {
         if (!done) {
@@ -281,14 +344,25 @@
       if (absRotX > PI) absRotX = TWO_PI - absRotX;
       let isTilted = absRotX > 0.25;
 
+      // Divided-attention fix: fade the legend out as the tilt animation
+      // takes over, so it isn't competing with the rotation for focus.
+      if (inIframe) {
+        let leg = document.getElementById('legend');
+        if (leg) leg.style.opacity = 1 - constrain(map(absRotX, 0, 0.3, 0, 1), 0, 1);
+      }
+
       let cx = width / 2;
       let cy = height * (inIframe ? 0.33 : 0.38) + (isTilted ? -absRotX * 60 : 0);
       let R = min(width, height) * (inIframe ? 0.23 : 0.26);
 
       translate(cx, cy);
 
-      let curYi = min(floor(progress / (N + 1)), NY - 1);
-      let curCi = floor(progress % (N + 1));
+      // rawYi overflows to NY once every year is drawn; clamping alone would
+      // leave the last year stuck as a 1-point "current" line (missing ring).
+      let rawYi = floor(progress / (N + 1));
+      let allYearsDone = rawYi >= NY;
+      let curYi = min(rawYi, NY - 1);
+      let curCi = allYearsDone ? N : floor(progress % (N + 1));
 
       // Commune labels (top view only)
       let labelFade = isTilted ? max(0, 1 - (absRotX - 0.25) * 4) : 1;
@@ -327,7 +401,7 @@
 
       // Completed year polygons
       let allPts = [];
-      for (let yi = 0; yi < curYi; yi++) {
+      for (let yi = 0; yi < (allYearsDone ? NY : curYi); yi++) {
         let [cr, cg, cb] = yearColorRGB(yi);
         stroke(cr, cg, cb, 210);
         strokeWeight(map(yi, 0, NY - 1, 1.8, 3.2));
@@ -342,7 +416,7 @@
       }
 
       // Current year progressive line
-      if (curYi < NY) {
+      if (!allYearsDone) {
         let [cr, cg, cb] = yearColorRGB(curYi);
         let pointsInYear = min(curCi + 1, N + 1);
         let frac = progress % 1;
@@ -437,14 +511,21 @@
 
       // Hover detection
       let mx = mouseX, my = mouseY;
-      let bestDist = 18; let best = null;
+      let bestDist = 30; let best = null;
       for (let p of allPts) {
         let d = dist(mx, my, p.x, p.y);
         if (d < bestDist) { bestDist = d; best = p; }
       }
 
-      // Auto-highlight Forest in phase 3
-      if (scrollMode && autoForest && FOREST_CI >= 0) {
+      // Label hover: use that commune's latest data
+      if (!best && labelHovered && hoveredCommune >= 0 && done) {
+        let lastYi = NY - 1;
+        let fp = getPoint3D(lastYi, hoveredCommune, R);
+        best = { ci: hoveredCommune, yi: lastYi, x: fp.x + cx, y: fp.y + cy, pct: getPct(COMMUNES_DATA[hoveredCommune], YEARS[lastYi]), year: YEARS[lastYi] };
+      }
+
+      // Default to Forest only while step 4 asks for the details panel
+      if (!best && !labelHovered && scrollMode && done && autoForest && FOREST_CI >= 0) {
         let lastYi = NY - 1;
         let fp = getPoint3D(lastYi, FOREST_CI, R);
         best = { ci: FOREST_CI, yi: lastYi, x: fp.x + cx, y: fp.y + cy, pct: getPct(COMMUNES_DATA[FOREST_CI], YEARS[lastYi]), year: YEARS[lastYi] };
@@ -464,11 +545,12 @@
         tip.querySelector('.t-irr').textContent = YEARLY_IRRADIATION[best.year].total + ' kWh/m²';
         tip.querySelector('.t-bar-fill').style.width = (best.pct / 20 * 100) + '%';
         tip.style.display = 'block';
-        let tipX = (scrollMode && autoForest) ? best.x : mx;
-        let tipY = (scrollMode && autoForest) ? best.y : my;
+        let useDataPos = labelHovered || (!labelHovered && scrollMode && autoForest);
+        let tipX = useDataPos ? best.x : mx;
+        let tipY = useDataPos ? best.y : my;
         tip.style.left = Math.min(tipX + 16, width - 220) + 'px';
         tip.style.top = (tipY - 10) + 'px';
-      } else {
+      } else if (!labelHovered) {
         hoveredCommune = -1;
         tip.style.display = 'none';
       }
@@ -513,6 +595,30 @@
 
     function windowResized() { resizeCanvas(windowWidth, windowHeight); }
 
+    // Update phase dots indicator
+    function updateDots(phase) {
+      document.querySelectorAll('#phase-dots .dot').forEach(d => {
+        d.classList.toggle('active', parseInt(d.dataset.phase) <= phase);
+      });
+    }
+
+    // Touch-to-reveal tooltip (mobile)
+    function handleTouch(e) {
+      if (!done || !scrollMode) return;
+      let touch = e.touches ? e.touches[0] : e;
+      let rect = document.querySelector('canvas').getBoundingClientRect();
+      let tx = touch.clientX - rect.left;
+      let ty = touch.clientY - rect.top;
+      mouseX = tx;
+      mouseY = ty;
+    }
+    document.addEventListener('touchstart', function(e) {
+      if (scrollMode && done) {
+        handleTouch(e);
+        redraw();
+      }
+    }, { passive: true });
+
     window.addEventListener('message', function(e) {
       if (e.data === 'solar-pause') noLoop();
       else if (e.data === 'solar-resume') loop();
@@ -520,6 +626,12 @@
         scrollMode = true;
         scrollPhase = e.data.phase;
         scrollT = e.data.t;
+        updateDots(scrollPhase);
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          progress = TOTAL_STEPS;
+          done = true; doneT = 1; showDiamonds = true;
+          if (scrollPhase >= 6) targetRotX = HALF_PI;
+        }
         if (!isLooping()) loop();
       } else if (e.data === 'solar-freeplay') {
         scrollMode = false;

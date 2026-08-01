@@ -345,6 +345,17 @@ html {
     gap: 0;
 }
 
+.rairsun-first-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.rairsun-first-screen .rairsun-nav {
+    margin-top: auto;
+    margin-bottom: 0;
+    padding-bottom: 40px;
+}
+
 .rairsun-intro {
     margin-bottom: 40px;
     padding-bottom: 30px;
@@ -732,11 +743,10 @@ html {
 }
 
 .solar-step {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 0 8% 80px;
+    min-height: 180vh;
+    display: block;
+    padding: 0 8%;
+    padding-top: 100vh;
     pointer-events: none;
 }
 
@@ -745,23 +755,71 @@ html {
     color: rgba(0,0,0,0.5);
     max-width: 300px;
     line-height: 1.5;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.92);
     padding: 8px 12px;
     border-radius: 6px;
     display: inline-block;
     pointer-events: auto;
+    position: sticky;
+    top: 24px;
 }
 
 .solar-step .rairsun-section-title {
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.92);
     display: inline-block;
-    padding: 4px 10px;
+    padding: 2px 6px;
     border-radius: 4px;
     margin-bottom: 8px;
     border-bottom: none;
-    padding-bottom: 4px;
     width: auto;
     pointer-events: auto;
+}
+
+/* Overlays live inside .solar-sticky (sticky, 100vh) so they stay onscreen
+   through the whole story; JS toggles .visible to fade them per phase. */
+.solar-overlay {
+    position: absolute;
+    left: 8%;
+    bottom: 80px;
+    max-width: 300px;
+    margin: 0;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(0,0,0,0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+    z-index: 5;
+}
+.solar-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+.solar-overlay-title {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    color: #111;
+    letter-spacing: 0.02em;
+}
+
+
+/* Phases 2 & 3: description pinned at TOP for the whole step (~few seconds) */
+.solar-step[data-phase="2"] .solar-step-label,
+.solar-step[data-phase="3"] .solar-step-label {
+    top: 24px;
+}
+
+.solar-step-intro {
+    padding-top: 60vh;
+}
+/* Intro description joins the title at the top and leaves together with it */
+.solar-step-intro .solar-step-label {
+    margin-top: 50vh;
+    top: 60px;
 }
 
 .step-diamond {

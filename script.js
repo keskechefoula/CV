@@ -332,6 +332,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const solarIframe = solarStory.querySelector('iframe');
         const steps = solarStory.querySelectorAll('.solar-step[data-phase]');
         const panel = solarStory.closest('.rairsun-panel');
+        const solarTitle = solarStory.querySelector('.solar-overlay-title');
+        const solarSource = solarStory.querySelector('.solar-overlay-source');
+        let solarAutoTransitioned = false;
 
         function updateSolarScroll() {
             if (!solarIframe.contentWindow) return;
@@ -363,9 +366,30 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (bestPhase === 0) bestPhase = 1;
+
+            // Brugel source visible from phase 5, stays through the tilt (phase 6)
+            if (solarTitle) {
+                solarTitle.classList.toggle('visible', bestPhase === 1);
+            }
+            if (solarSource) {
+                solarSource.classList.toggle('visible', bestPhase === 5 || bestPhase === 6);
+            }
+
             solarIframe.contentWindow.postMessage({
                 mode: 'scroll', phase: bestPhase, t: bestT
             }, '*');
+
+            // Auto-transition to next project after tilt completes
+            if (bestPhase === 6 && bestT >= 0.95 && !solarAutoTransitioned) {
+                solarAutoTransitioned = true;
+                const nextSection = document.getElementById('rs-linkedin');
+                if (nextSection && panel) {
+                    setTimeout(() => {
+                        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 600);
+                }
+            }
+            if (bestPhase < 6) solarAutoTransitioned = false;
         }
 
         if (panel) {
