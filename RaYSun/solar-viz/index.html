@@ -208,11 +208,10 @@
         scrollMode = true;
         progress = 0;
         let leg = document.getElementById('legend');
-        leg.style.left = '50%';
-        leg.style.transform = 'translateX(-50%)';
-        leg.style.bottom = '10px';
-        leg.style.right = 'auto';
-        leg.style.top = 'auto';
+        leg.style.left = 'auto';
+        leg.style.right = '12px';
+        leg.style.bottom = 'auto';
+        leg.style.top = '60%';
         noLoop();
       }
     }
@@ -241,7 +240,7 @@
           done = true;
           doneT = 1;
           showDiamonds = true;
-          autoForest = true;
+          autoForest = scrollT > 0.4;
           targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 4) {
           progress = TOTAL_STEPS;
@@ -249,14 +248,14 @@
           doneT = 1;
           showDiamonds = true;
           autoForest = false;
-          targetRotX = scrollT * PI * 0.42;
+          targetRotX = 0; targetRotZ = 0;
         } else if (scrollPhase === 5) {
           progress = TOTAL_STEPS;
           done = true;
           doneT = 1;
           showDiamonds = true;
           autoForest = false;
-          targetRotX = PI * 0.42;
+          targetRotX = scrollT * PI * 0.42;
         }
       } else {
         if (!done) {
