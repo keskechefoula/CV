@@ -333,6 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const steps = solarStory.querySelectorAll('.solar-step[data-phase]');
         const panel = solarStory.closest('.rairsun-panel');
         const solarTitle = solarStory.querySelector('.solar-overlay-title');
+        const solarIntro = solarStory.querySelector('.solar-overlay-intro');
         const solarSource = solarStory.querySelector('.solar-overlay-source');
         let solarAutoTransitioned = false;
 
@@ -376,6 +377,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     const p = Math.min(bestT / 0.4, 1);
                     solarTitle.style.top = (startTop + (endTop - startTop) * p) + 'px';
                     solarTitle.style.bottom = 'auto';
+                }
+            }
+            if (solarIntro) {
+                const titlePinned = bestPhase === 1 && bestT > 0.4;
+                solarIntro.classList.toggle('visible', titlePinned);
+                if (bestPhase === 1) {
+                    const startTop = window.innerHeight + 40;
+                    const endTop = window.innerHeight - 260;
+                    const p = titlePinned ? Math.min((bestT - 0.4) / 0.2, 1) : 0;
+                    solarIntro.style.top = (startTop + (endTop - startTop) * p) + 'px';
                 }
             }
             if (solarSource) {

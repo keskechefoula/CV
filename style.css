@@ -798,6 +798,11 @@ html {
     opacity: 1;
     pointer-events: auto;
 }
+.solar-overlay-intro {
+    bottom: auto;
+    top: calc(100vh - 260px);
+    transition: top 0.4s cubic-bezier(0, 0, 0.2, 1);
+}
 .solar-overlay-title {
     font-family: inherit;
     font-weight: 700;
@@ -815,6 +820,7 @@ html {
 
 .solar-step-intro {
     padding-top: 60vh;
+    min-height: 300vh;
 }
 /* Intro description joins the title at the top and leaves together with it */
 .solar-step-intro .solar-step-label {

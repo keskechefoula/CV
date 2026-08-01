@@ -273,9 +273,8 @@
       if (scrollMode) {
         if (scrollPhase === 1) {
           // Skip first 20% so the title has time to appear before 2019 draws
-          let t1 = max(0, (scrollT - 0.2) / 0.8);
-          progress = t1 * TOTAL_STEPS;
-          done = t1 >= 1;
+          progress = scrollT * TOTAL_STEPS;
+          done = scrollT >= 1;
           doneT = 0;
           showDiamonds = false;
           autoForest = false;
