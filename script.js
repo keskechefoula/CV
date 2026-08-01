@@ -350,21 +350,30 @@ document.addEventListener("DOMContentLoaded", () => {
             let bestPhase = 0;
             let bestT = 0;
 
+            // Find the current active phase: the lowest phase still in progress (0 < t < 1).
+            // Only advance to the next phase once the previous one is fully scrolled (t >= 1).
+            let completedPhase = 0;
+            const phaseData = [];
             steps.forEach(step => {
                 const phase = parseInt(step.dataset.phase);
                 if (isNaN(phase)) return;
                 const rect = step.getBoundingClientRect();
                 const viewH = window.innerHeight;
                 const t = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH + rect.height)));
-
-                if (t >= 1 && phase > bestPhase) {
-                    bestPhase = phase;
-                    bestT = 1;
-                } else if (t > 0 && t < 1 && phase > bestPhase) {
-                    bestPhase = phase;
-                    bestT = t;
-                }
+                phaseData.push({ phase, t });
+                if (t >= 1 && phase > completedPhase) completedPhase = phase;
             });
+            // Active phase = first incomplete phase after the last completed one
+            bestPhase = completedPhase;
+            bestT = 1;
+            for (const pd of phaseData) {
+                if (pd.phase === completedPhase + 1 && pd.t > 0 && pd.t < 1) {
+                    bestPhase = pd.phase;
+                    bestT = pd.t;
+                    break;
+                }
+            }
+            if (bestPhase === 0) bestPhase = 1;
 
             if (bestPhase === 0) bestPhase = 1;
 
