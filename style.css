@@ -695,6 +695,38 @@ html {
     margin-bottom: 40px;
 }
 
+/* Spirale Solaire embed */
+.rairsun-solar-desc {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 600px;
+}
+
+.rairsun-solar-wrap {
+    width: calc(100% + 16%);
+    margin-left: -8%;
+    margin-right: -8%;
+    height: 80vh;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.rairsun-solar-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.rairsun-solar-meta {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 60px;
+}
+
 /* Titres de section RaYSun (LinkedIn / Logos) */
 .rairsun-section-title {
     font-family: 'Vevey', 'Courier New', monospace;

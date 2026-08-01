@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spirale Solaire — Bruxelles</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #fff;
+      overflow: hidden; font-family: 'Helvetica Neue', Arial, sans-serif;
+      cursor: grab;
+    }
+    body.dragging { cursor: grabbing; }
+    canvas { display: block; }
+
+    #tooltip {
+      position: fixed; display: none; z-index: 30; pointer-events: none;
+      background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 8px; padding: 12px 16px; min-width: 200px;
+    }
+    #tooltip .t-name { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 2px; }
+    #tooltip .t-year { font-size: 10px; color: #e06020; margin-bottom: 8px; font-weight: 600; }
+    #tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: rgba(0,0,0,0.55); padding: 2px 0; }
+    #tooltip .t-val { color: #e06020; font-weight: 700; }
+    #tooltip .t-bar { height: 3px; border-radius: 2px; background: rgba(0,0,0,0.08); margin-top: 8px; }
+    #tooltip .t-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(to right, #4a3aff, #ff7a3a); }
+
+    .commune-label {
+      position: absolute; pointer-events: none; z-index: 15;
+      font-size: 11px; color: rgba(0,0,0,0.6); white-space: nowrap; font-weight: 500;
+      transform: translate(-50%, -50%); transition: color 0.2s, font-size 0.2s;
+    }
+    .commune-label .c-pct { display: block; font-size: 9px; color: rgba(0,0,0,0.4); text-align: center; margin-top: 1px; }
+    .commune-label.hovered { color: #e06020; font-weight: 700; font-size: 13px; }
+    .commune-label.hovered .c-pct { color: #e06020; }
+
+    body { position: relative; }
+    #legend {
+      position: absolute; bottom: 12px; left: 12px; z-index: 20;
+      background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #333;
+      line-height: 1.8; min-width: 220px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    #legend .legend-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: #111; }
+    #legend .legend-row { display: flex; align-items: center; gap: 10px; }
+    #legend .grad-bar {
+      width: 80px; height: 5px; border-radius: 3px;
+      background: linear-gradient(to right, #4a3aff, #b432dc, #e05078, #eb7828, #dcb414);
+      flex-shrink: 0;
+    }
+    #legend .legend-diamond { width: 8px; height: 8px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
+    #legend .legend-diamond-sm { width: 5px; height: 5px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
+    #legend .legend-diamond-lg { width: 11px; height: 11px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
+    #legend .diamond-scale { display: flex; align-items: center; gap: 6px; margin-top: 2px; margin-left: 2px; }
+    #legend .diamond-scale span { font-size: 10px; color: #888; }
+  </style>
+</head>
+<body>
+  <div id="tooltip">
+    <div class="t-name"></div>
+    <div class="t-year"></div>
+    <div class="t-row"><span>Toitures exploitees</span><span class="t-val t-pct"></span></div>
+    <div class="t-row"><span>Surface de toiture dispo.</span><span class="t-val t-surf"></span></div>
+    <div class="t-row"><span>Surface PV installee</span><span class="t-val t-inst"></span></div>
+    <div class="t-row"><span>Ensoleillement annuel</span><span class="t-val t-irr"></span></div>
+    <div class="t-bar"><div class="t-bar-fill"></div></div>
+  </div>
+
+  <div id="legend">
+    <div class="legend-title">Potentiel solaire des toitures a Bruxelles</div>
+    <div class="legend-row"><div class="grad-bar"></div><span>Annee : 2019 → 2026</span></div>
+    <div class="legend-row" style="gap:6px"><span style="font-size:11px;color:#555;">Rayon = part des toitures equipees en panneaux solaires</span></div>
+    <div class="legend-row"><div class="legend-diamond"></div><span>Projet de partage d'energie</span></div>
+    <div class="diamond-scale">
+      <div class="legend-diamond-sm"></div><span>5</span>
+      <div class="legend-diamond"></div><span>20</span>
+      <div class="legend-diamond-lg"></div><span>40</span>
+      <span style="color:#aaa;margin-left:4px;">projets</span>
+    </div>
+    <div style="font-size:10px; color:#999; margin-top:6px;">Glisser pour tourner · Survol pour details</div>
+  </div>
+
+  <div id="labels-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script src="data.js"></script>
+  <script>
+    const N = COMMUNES_DATA.length;
+    const ALL_YEARS = Object.keys(YEARLY_IRRADIATION).map(Number).sort();
+    const YEARS = ALL_YEARS.filter(y => y >= 2019);
+    const NY = YEARS.length;
+
+    const TOTAL_STEPS = NY * (N + 1);
+    let progress = 0;
+    let speed = 0.4;
+    let done = false;
+    let doneT = 0;
+    let tiltT = 0;
+    let tiltPhase = 0;
+    let hoveredCommune = -1;
+
+    let rotX = 0;
+    let rotZ = 0;
+    let targetRotX = 0;
+    let targetRotZ = 0;
+    let isDragging = false;
+    let lastMX = 0, lastMY = 0;
+    let autoTiltDone = false;
+
+    const SHORT = COMMUNES_DATA.map(c => c.name
+      .replace('Berchem-Ste-Agathe', 'Berchem')
+      .replace('Molenbeek-St-Jean', 'Molenbeek')
+      .replace('St-Josse-ten-Noode', 'St-Josse')
+      .replace('Watermael-Boitsfort', 'Watermael')
+      .replace('Woluwé-St-Lambert', 'W-St-Lambert')
+      .replace('Woluwé-St-Pierre', 'W-St-Pierre')
+      .replace('Bruxelles-Ville', 'Bruxelles')
+    );
+
+    let labelEls = [];
+    function createLabels() {
+      let container = document.getElementById('labels-container');
+      for (let ci = 0; ci < N; ci++) {
+        let el = document.createElement('div');
+        el.className = 'commune-label';
+        el.innerHTML = SHORT[ci] + '<span class="c-pct">' + COMMUNES_DATA[ci].pct[2026] + '%</span>';
+        container.appendChild(el);
+        labelEls.push(el);
+      }
+    }
+
+    function getPct(c, year) {
+      if (c.pct[year] !== undefined) return c.pct[year];
+      let years = Object.keys(c.pct).map(Number).sort();
+      for (let i = 0; i < years.length - 1; i++) {
+        if (year >= years[i] && year <= years[i+1])
+          return map(year, years[i], years[i+1], c.pct[years[i]], c.pct[years[i+1]]);
+      }
+      return c.pct[years[years.length - 1]];
+    }
+
+    const PALETTE = [
+      [74, 58, 255],
+      [120, 50, 220],
+      [180, 50, 200],
+      [220, 50, 120],
+      [230, 80, 60],
+      [235, 120, 40],
+      [230, 160, 30],
+      [220, 180, 20]
+    ];
+    function yearColorRGB(yi) {
+      let t = (NY <= 1) ? 1 : yi / (NY - 1);
+      let scaled = t * (PALETTE.length - 1);
+      let i0 = Math.floor(scaled);
+      let i1 = Math.min(i0 + 1, PALETTE.length - 1);
+      let u = scaled - i0;
+      let c0 = PALETTE[i0], c1 = PALETTE[i1];
+      return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)];
+    }
+
+    function project3D(px3, py3, pz3) {
+      let cosZ = Math.cos(rotZ), sinZ = Math.sin(rotZ);
+      let x1 = px3 * cosZ - py3 * sinZ;
+      let y1 = px3 * sinZ + py3 * cosZ;
+      let z1 = pz3;
+      let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+      let x2 = x1;
+      let y2 = y1 * cosX - z1 * sinX;
+      let z2 = y1 * sinX + z1 * cosX;
+      return { x: x2, y: y2, z: z2 };
+    }
+
+    function getPoint3D(yi, ci, R) {
+      let c = COMMUNES_DATA[ci % N];
+      let year = YEARS[yi];
+      let a = ((ci % N) / N) * TWO_PI - HALF_PI;
+      let pct = getPct(c, year);
+      let irr = YEARLY_IRRADIATION[year].total;
+      let irrS = map(irr, 1040, 1150, 0.92, 1.08);
+      let r = map(pct, 0, 20, R * 0.08, R * 0.95) * irrS;
+      let px3 = cos(a) * r;
+      let py3 = sin(a) * r;
+      let pz3 = -yi * 22;
+      let proj = project3D(px3, py3, pz3);
+      return { x: proj.x, y: proj.y, z: proj.z, pct, a };
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      createLabels();
+      textFont('Helvetica Neue');
+    }
+
+    function draw() {
+      clear();
+      background(255);
+
+      if (!done) {
+        progress = min(progress + speed, TOTAL_STEPS);
+        if (progress >= TOTAL_STEPS) { done = true; doneT = 0; tiltPhase = 0; }
+      } else {
+        doneT = min(doneT + 0.012, 1);
+        if (tiltPhase === 0 && doneT > 0.6) tiltPhase = 1;
+        if (tiltPhase === 1 && !autoTiltDone) {
+          targetRotX = PI * 0.42;
+          tiltT = min(tiltT + 0.008, 1);
+          if (tiltT >= 1) { tiltPhase = 2; autoTiltDone = true; }
+        }
+      }
+
+      if (!isDragging) {
+        rotX += (targetRotX - rotX) * 0.06;
+        rotZ += (targetRotZ - rotZ) * 0.06;
+      }
+
+      let absRotX = Math.abs(rotX % (TWO_PI));
+      if (absRotX > PI) absRotX = TWO_PI - absRotX;
+      let isTilted = absRotX > 0.25;
+
+      let cx = width / 2;
+      let cy = height * 0.38 + (isTilted ? -absRotX * 60 : 0);
+      let R = min(width, height) * 0.26;
+
+      translate(cx, cy);
+
+      let curYi = min(floor(progress / (N + 1)), NY - 1);
+      let curCi = floor(progress % (N + 1));
+
+      // Commune labels (top view only)
+      let labelFade = isTilted ? max(0, 1 - (absRotX - 0.25) * 4) : 1;
+      for (let ci = 0; ci < N; ci++) {
+        let a = (ci / N) * TWO_PI - HALF_PI;
+        let lr = R * 1.14;
+        let px3 = cos(a) * lr;
+        let py3 = sin(a) * lr;
+        let proj = project3D(px3, py3, 0);
+        labelEls[ci].style.left = (cx + proj.x) + 'px';
+        labelEls[ci].style.top = (cy + proj.y) + 'px';
+        labelEls[ci].style.opacity = labelFade;
+        let isActive = !done && (ci === curCi % N);
+        labelEls[ci].classList.toggle('hovered', isActive || hoveredCommune === ci);
+      }
+
+      // Reference circles — black, readable
+      let pctMarks = [5, 10, 15, 20];
+      for (let p of pctMarks) {
+        let cr = map(p, 0, 20, R * 0.08, R * 0.95);
+        noFill(); stroke(0, 0, 0, 45); strokeWeight(0.8);
+        drawEllipse3D(0, 0, 0, cr, 36);
+        fill(0, 0, 0, 160); noStroke(); textSize(10); textAlign(LEFT, BOTTOM);
+        let lp = project3D(4, -cr, 0);
+        text(p + '%', lp.x, lp.y);
+      }
+
+      // Radial guides
+      stroke(0, 0, 0, 15); strokeWeight(0.5);
+      for (let ci = 0; ci < N; ci++) {
+        let a = (ci / N) * TWO_PI - HALF_PI;
+        let ep = project3D(cos(a) * R * 1.0, sin(a) * R * 1.0, 0);
+        let op = project3D(0, 0, 0);
+        line(op.x, op.y, ep.x, ep.y);
+      }
+
+      // Completed year polygons
+      let allPts = [];
+      for (let yi = 0; yi < curYi; yi++) {
+        let [cr, cg, cb] = yearColorRGB(yi);
+        stroke(cr, cg, cb, 210);
+        strokeWeight(map(yi, 0, NY - 1, 1.8, 3.2));
+        noFill();
+        beginShape();
+        for (let ci = 0; ci <= N; ci++) {
+          let p = getPoint3D(yi, ci, R);
+          vertex(p.x, p.y);
+          if (ci < N) allPts.push({ ci, yi, x: p.x + cx, y: p.y + cy, pct: p.pct, year: YEARS[yi] });
+        }
+        endShape(CLOSE);
+      }
+
+      // Current year progressive line
+      if (curYi < NY) {
+        let [cr, cg, cb] = yearColorRGB(curYi);
+        let pointsInYear = min(curCi + 1, N + 1);
+        let frac = progress % 1;
+
+        stroke(cr, cg, cb, 255);
+        strokeWeight(map(curYi, 0, NY - 1, 2.5, 4));
+        noFill();
+        beginShape();
+        for (let ci = 0; ci < pointsInYear; ci++) {
+          let p = getPoint3D(curYi, ci, R);
+          vertex(p.x, p.y);
+          if (ci < N) allPts.push({ ci, yi: curYi, x: p.x + cx, y: p.y + cy, pct: p.pct, year: YEARS[curYi] });
+        }
+        if (pointsInYear <= N && frac > 0) {
+          let pCur = getPoint3D(curYi, pointsInYear - 1, R);
+          let pNext = getPoint3D(curYi, pointsInYear, R);
+          vertex(lerp(pCur.x, pNext.x, frac), lerp(pCur.y, pNext.y, frac));
+        }
+        endShape();
+
+        // Moving dot
+        let headCi = min(pointsInYear - 1, N);
+        let hx, hy;
+        if (frac > 0 && pointsInYear <= N) {
+          let pCur = getPoint3D(curYi, headCi, R);
+          let pNext = getPoint3D(curYi, headCi + 1, R);
+          hx = lerp(pCur.x, pNext.x, frac);
+          hy = lerp(pCur.y, pNext.y, frac);
+        } else {
+          let p = getPoint3D(curYi, headCi, R);
+          hx = p.x; hy = p.y;
+        }
+        fill(cr, cg, cb); noStroke();
+        ellipse(hx, hy, 10, 10);
+        fill(255); noStroke();
+        ellipse(hx, hy, 4, 4);
+      }
+
+      // Energy community diamonds
+      if (done && typeof ENERGY_COMMUNITIES !== 'undefined') {
+        let ecAlpha = map(doneT, 0.3, 0.8, 0, 230, true);
+        let lastYi = NY - 1;
+        for (let ci = 0; ci < N; ci++) {
+          let ec = ENERGY_COMMUNITIES[ci];
+          if (ec.projects === 0) continue;
+          let a = (ci / N) * TWO_PI - HALF_PI;
+          let c = COMMUNES_DATA[ci];
+          let pct2026 = c.pct[2026] || c.pct[2024];
+          let r = map(pct2026, 0, 20, R * 0.08, R * 0.95);
+          let px3 = cos(a) * (r + 16);
+          let py3 = sin(a) * (r + 16);
+          let proj = project3D(px3, py3, -lastYi * 22);
+          let sz = map(ec.projects, 4, 40, 5, 14);
+          push();
+          translate(proj.x, proj.y);
+          rotate(PI / 4);
+          fill(46, 170, 112, ecAlpha);
+          noStroke();
+          rectMode(CENTER);
+          rect(0, 0, sz, sz);
+          pop();
+        }
+      }
+
+      // Year labels
+      let maxDrawnYi = done ? NY - 1 : curYi;
+      if (isTilted) {
+        // Profile: all years colored on the side
+        for (let yi = 0; yi <= maxDrawnYi; yi++) {
+          let [cr, cg, cb] = yearColorRGB(yi);
+          let labAlpha = map(absRotX, 0.25, 0.4, 0, 230, true);
+          let proj = project3D(-R * 0.95 - 20, 0, -yi * 22);
+          fill(cr, cg, cb, labAlpha);
+          noStroke();
+          textSize(yi === maxDrawnYi ? 14 : 11);
+          textAlign(RIGHT, CENTER);
+          textStyle(BOLD);
+          text(YEARS[yi], proj.x, proj.y);
+          textStyle(NORMAL);
+        }
+      } else {
+        // Top view: single current year in center, black
+        let proj = project3D(0, 0, -curYi * 22);
+        fill(0, 0, 0, 200);
+        noStroke();
+        textSize(13);
+        textAlign(CENTER, CENTER);
+        textStyle(BOLD);
+        text(YEARS[min(curYi, NY - 1)], proj.x, proj.y);
+        textStyle(NORMAL);
+      }
+
+      // Hover detection
+      let mx = mouseX, my = mouseY;
+      let bestDist = 18; let best = null;
+      for (let p of allPts) {
+        let d = dist(mx, my, p.x, p.y);
+        if (d < bestDist) { bestDist = d; best = p; }
+      }
+
+      let tip = document.getElementById('tooltip');
+      if (best && done && !isDragging) {
+        hoveredCommune = best.ci;
+        let c = COMMUNES_DATA[best.ci];
+        tip.querySelector('.t-name').textContent = c.name;
+        tip.querySelector('.t-year').textContent = best.year;
+        tip.querySelector('.t-pct').textContent = best.pct.toFixed(1) + '%';
+        tip.querySelector('.t-surf').textContent = (c.potentiel_m2 / 1e6).toFixed(2) + ' M m²';
+        let instM2 = Math.round(c.potentiel_m2 * best.pct / 100);
+        tip.querySelector('.t-inst').textContent = (instM2 / 1000).toFixed(1) + ' k m²';
+        tip.querySelector('.t-irr').textContent = YEARLY_IRRADIATION[best.year].total + ' kWh/m²';
+        tip.querySelector('.t-bar-fill').style.width = (best.pct / 20 * 100) + '%';
+        tip.style.display = 'block';
+        tip.style.left = Math.min(mx + 16, width - 220) + 'px';
+        tip.style.top = (my - 10) + 'px';
+      } else {
+        hoveredCommune = -1;
+        tip.style.display = 'none';
+      }
+    }
+
+    function drawEllipse3D(cx3, cy3, cz3, radius, segments) {
+      beginShape();
+      for (let i = 0; i <= segments; i++) {
+        let a = (i / segments) * TWO_PI;
+        let px3 = cx3 + cos(a) * radius;
+        let py3 = cy3 + sin(a) * radius;
+        let proj = project3D(px3, py3, cz3);
+        vertex(proj.x, proj.y);
+      }
+      endShape();
+    }
+
+    function mousePressed() {
+      if (mouseButton === LEFT) {
+        isDragging = true;
+        lastMX = mouseX;
+        lastMY = mouseY;
+        document.body.classList.add('dragging');
+      }
+    }
+    function mouseDragged() {
+      if (isDragging) {
+        let dx = mouseX - lastMX;
+        let dy = mouseY - lastMY;
+        targetRotZ += dx * 0.005;
+        targetRotX += dy * 0.005;
+        rotZ = targetRotZ;
+        rotX = targetRotX;
+        lastMX = mouseX;
+        lastMY = mouseY;
+      }
+    }
+    function mouseReleased() {
+      isDragging = false;
+      document.body.classList.remove('dragging');
+    }
+
+    function windowResized() { resizeCanvas(windowWidth, windowHeight); }
+  </script>
+</body>
+</html>
