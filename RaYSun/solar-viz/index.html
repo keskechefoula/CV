@@ -56,6 +56,27 @@
     #legend .legend-diamond-lg { width: 11px; height: 11px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
     #legend .diamond-scale { display: flex; align-items: center; gap: 6px; margin-top: 2px; margin-left: 2px; }
     #legend .diamond-scale span { font-size: 10px; color: #888; }
+
+    #controls {
+      position: absolute; bottom: 14px; right: 14px; z-index: 25;
+      display: flex; flex-direction: column; gap: 8px; align-items: center;
+    }
+    #controls button {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1.5px solid #2eaa70; background: rgba(255,255,255,0.92);
+      color: #2eaa70; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 0; line-height: 1;
+    }
+    #controls button:hover { background: #2eaa70; color: #fff; }
+    #controls button:active { transform: scale(0.92); }
+    .ctrl-rotate { display: none; }
+    @media (max-width: 768px) {
+      .ctrl-rotate { display: flex; }
+      #controls button { width: 30px; height: 30px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -81,6 +102,12 @@
       <span style="color:#aaa;margin-left:4px;">projets</span>
     </div>
     <div style="font-size:10px; color:#999; margin-top:6px;">Glisser pour tourner · Survol pour details</div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-rotate" id="ctrl-left" title="Tourner gauche">&#8592;</button>
+    <button id="ctrl-replay" title="Relancer">&#8635;</button>
+    <button class="ctrl-rotate" id="ctrl-right" title="Basculer">&#8593;</button>
   </div>
 
   <div id="labels-container"></div>
@@ -442,6 +469,26 @@
     }
 
     function windowResized() { resizeCanvas(windowWidth, windowHeight); }
+
+    // Controls
+    document.getElementById('ctrl-replay').addEventListener('click', function(e) {
+      e.stopPropagation();
+      progress = 0; done = false; doneT = 0; tiltT = 0; tiltPhase = 0;
+      rotX = 0; rotZ = 0; targetRotX = 0; targetRotZ = 0; autoTiltDone = false;
+      if (!isLooping()) loop();
+    });
+    document.getElementById('ctrl-left').addEventListener('click', function(e) {
+      e.stopPropagation(); targetRotZ -= 0.4;
+    });
+    document.getElementById('ctrl-right').addEventListener('click', function(e) {
+      e.stopPropagation(); targetRotX += 0.4;
+    });
+
+    // Pause when not visible (parent sends postMessage)
+    window.addEventListener('message', function(e) {
+      if (e.data === 'solar-pause') noLoop();
+      else if (e.data === 'solar-resume') loop();
+    });
   </script>
 </body>
 </html>

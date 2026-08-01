@@ -326,4 +326,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.insta-grid').forEach(grid => {
         embedObserver.observe(grid, { childList: true, subtree: true });
     });
+
+    // Pause/resume solar viz iframe when not visible
+    const solarWrap = document.querySelector('.rairsun-solar-wrap');
+    if (solarWrap) {
+        const solarIframe = solarWrap.querySelector('iframe');
+        const solarObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (solarIframe.contentWindow) {
+                    solarIframe.contentWindow.postMessage(
+                        entry.isIntersecting ? 'solar-resume' : 'solar-pause', '*'
+                    );
+                }
+            });
+        }, { threshold: 0.1 });
+        solarObs.observe(solarWrap);
+    }
 });
