@@ -370,6 +370,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // Brugel source visible from phase 5, stays through the tilt (phase 6)
             if (solarTitle) {
                 solarTitle.classList.toggle('visible', bestPhase === 1);
+                if (bestPhase === 1) {
+                    const startTop = window.innerHeight - 80 - 40;
+                    const endTop = 24;
+                    const p = Math.min(bestT / 0.4, 1);
+                    solarTitle.style.top = (startTop + (endTop - startTop) * p) + 'px';
+                    solarTitle.style.bottom = 'auto';
+                }
             }
             if (solarSource) {
                 solarSource.classList.toggle('visible', bestPhase === 5 || bestPhase === 6);
