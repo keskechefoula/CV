@@ -333,8 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const steps = solarStory.querySelectorAll('.solar-step[data-phase]');
         const panel = solarStory.closest('.rairsun-panel');
         const solarTitle = solarStory.querySelector('.solar-overlay-title');
-        const solarIntro = solarStory.querySelector('.solar-overlay-intro');
         const solarSource = solarStory.querySelector('.solar-overlay-source');
+        const solarMobile = window.matchMedia('(max-width: 1024px)');
         let solarAutoTransitioned = false;
 
         function updateSolarScroll() {
@@ -347,55 +347,49 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             solarIframe.contentWindow.postMessage('solar-resume', '*');
 
+            // The active step is the one crossing the viewport midline. Picking
+            // "highest phase with t > 0" instead handed over as soon as the next
+            // step's top edge appeared — at 64% of the current step — so phase 1
+            // only ever drew up to 2023 before phase 2 snapped the spiral to
+            // 2026, and phase 5's tilt barely started before phase 6 jumped it.
+            // Steps are contiguous, so exactly one contains the line.
             let bestPhase = 0;
             let bestT = 0;
+            let lastPhase = 0;
+            let pastEnd = false;
+            const line = window.innerHeight * 0.5;
 
-            // Find the current active phase: the lowest phase still in progress (0 < t < 1).
-            // Only advance to the next phase once the previous one is fully scrolled (t >= 1).
-            let completedPhase = 0;
-            const phaseData = [];
             steps.forEach(step => {
                 const phase = parseInt(step.dataset.phase);
                 if (isNaN(phase)) return;
+                if (phase > lastPhase) lastPhase = phase;
                 const rect = step.getBoundingClientRect();
-                const viewH = window.innerHeight;
-                const t = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH + rect.height)));
-                phaseData.push({ phase, t });
-                if (t >= 1 && phase > completedPhase) completedPhase = phase;
-            });
-            // Active phase = first incomplete phase after the last completed one
-            bestPhase = completedPhase;
-            bestT = 1;
-            for (const pd of phaseData) {
-                if (pd.phase === completedPhase + 1 && pd.t > 0 && pd.t < 1) {
-                    bestPhase = pd.phase;
-                    bestT = pd.t;
-                    break;
+                if (rect.bottom <= line) pastEnd = true;
+                if (rect.top <= line && rect.bottom > line) {
+                    bestPhase = phase;
+                    bestT = Math.max(0, Math.min(1, (line - rect.top) / rect.height));
                 }
-            }
-            if (bestPhase === 0) bestPhase = 1;
+            });
 
-            if (bestPhase === 0) bestPhase = 1;
+            if (bestPhase === 0) {
+                // No step on the line: either above the story, or scrolled past it.
+                if (pastEnd) { bestPhase = lastPhase; bestT = 1; }
+                else { bestPhase = 1; bestT = 0; }
+            }
 
             // Brugel source visible from phase 5, stays through the tilt (phase 6)
             if (solarTitle) {
                 solarTitle.classList.toggle('visible', bestPhase === 1);
-                if (bestPhase === 1) {
+                if (solarMobile.matches) {
+                    // Mobile: CSS pins the title at the top, no rise animation.
+                    solarTitle.style.top = '';
+                    solarTitle.style.bottom = '';
+                } else if (bestPhase === 1) {
                     const startTop = window.innerHeight - 80 - 40;
                     const endTop = 24;
                     const p = Math.min(bestT / 0.4, 1);
                     solarTitle.style.top = (startTop + (endTop - startTop) * p) + 'px';
                     solarTitle.style.bottom = 'auto';
-                }
-            }
-            if (solarIntro) {
-                const titlePinned = bestPhase === 1 && bestT > 0.4;
-                solarIntro.classList.toggle('visible', titlePinned);
-                if (bestPhase === 1) {
-                    const startTop = window.innerHeight + 40;
-                    const endTop = window.innerHeight - 260;
-                    const p = titlePinned ? Math.min((bestT - 0.4) / 0.2, 1) : 0;
-                    solarIntro.style.top = (startTop + (endTop - startTop) * p) + 'px';
                 }
             }
             if (solarSource) {

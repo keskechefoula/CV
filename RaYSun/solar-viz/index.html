@@ -5,27 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirale Solaire — Bruxelles</title>
   <style>
+    /* Alfphabet — the Belgian road-signage alphabet the rest of the site is set
+       in. Civic type for civic data; the viz shouldn't read as a foreign widget. */
+    @font-face {
+      font-family: 'Alfphabet';
+      src: url('../../fonts/Alfphabet-I.otf') format('opentype');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #fff;
-      overflow: hidden; font-family: 'Helvetica Neue', Arial, sans-serif;
+      overflow: hidden;
+      font-family: 'Alfphabet', 'Courier New', Courier, monospace;
       cursor: grab;
     }
     body.dragging { cursor: grabbing; }
     canvas { display: block; }
 
     #tooltip {
-      position: fixed; display: none; z-index: 30; pointer-events: none;
-      background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.12);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      border-radius: 8px; padding: 12px 16px; min-width: 200px;
+      position: fixed; display: block; opacity: 0; z-index: 30; pointer-events: none;
+      background: #fff; border: 1px solid #000;
+      border-radius: 0; padding: 10px 12px; min-width: 210px;
+      transition: opacity 0.15s cubic-bezier(0, 0, 0.2, 1);
     }
-    #tooltip .t-name { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 2px; }
-    #tooltip .t-year { font-size: 10px; color: #e06020; margin-bottom: 8px; font-weight: 600; }
-    #tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: rgba(0,0,0,0.55); padding: 2px 0; }
-    #tooltip .t-val { color: #e06020; font-weight: 700; }
-    #tooltip .t-bar { height: 3px; border-radius: 2px; background: rgba(0,0,0,0.08); margin-top: 8px; }
-    #tooltip .t-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(to right, #4a3aff, #ff7a3a); }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .t-name { font-size: 13px; color: #000; text-transform: uppercase; letter-spacing: 0.06em; }
+    #tooltip .t-year { font-size: 10px; color: #000; margin-bottom: 8px; letter-spacing: 0.12em; }
+    #tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: rgba(0,0,0,0.6); padding: 2px 0; }
+    #tooltip .t-val { color: #000; }
+    #tooltip .t-bar { height: 6px; border-radius: 0; background: #fff; border: 1px solid #000; margin-top: 8px; }
+    /* Black, not green: green means "energy sharing" everywhere else here. */
+    #tooltip .t-bar-fill { height: 100%; border-radius: 0; background: #000; }
+    /* The bar is meaningless without its scale — same ends treatment as the legend plate. */
+    #tooltip .t-bar-scale {
+      display: flex; justify-content: space-between; margin-top: 3px;
+      font-size: 9px; letter-spacing: 0.08em; color: rgba(0,0,0,0.45);
+    }
 
     .commune-label {
       position: absolute; pointer-events: none; z-index: 15;
@@ -39,30 +55,46 @@
       padding: 4px 8px;
     }
     .commune-label .c-pct { display: block; font-size: 9px; color: rgba(0,0,0,0.4); text-align: center; margin-top: 1px; }
-    .commune-label.hovered { color: #e06020; font-weight: 700; font-size: 13px; }
-    .commune-label.hovered .c-pct { color: #e06020; }
+    /* Acid green is 1.6:1 on white — never as text. Hover = black + green rule. */
+    .commune-label.hovered { color: #000; font-size: 13px; box-shadow: inset 0 -3px 0 #3BFF6A; }
+    .commune-label.hovered .c-pct { color: #000; }
 
     body { position: relative; }
+    /* Signage plate: the year ramp runs full-bleed across the top edge, so the
+       colour scale — not a caption — is the first thing read. */
     #legend {
       position: absolute; bottom: 12px; left: 12px; right: auto; z-index: 20;
-      background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #333;
-      line-height: 1.8; min-width: 220px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background: #fff; border: 1px solid #000;
+      border-radius: 0; padding: 0; font-size: 11px; color: #000;
+      line-height: 1.45; min-width: 250px;
       transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
     }
-    #legend .legend-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: #111; }
-    #legend .legend-row { display: flex; align-items: center; gap: 10px; }
     #legend .grad-bar {
-      width: 80px; height: 5px; border-radius: 3px;
+      display: block; width: 100%; height: 9px; border-radius: 0;
       background: linear-gradient(to right, #4a3aff, #b432dc, #e05078, #eb7828, #dcb414);
-      flex-shrink: 0;
     }
-    #legend .legend-diamond { width: 8px; height: 8px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
-    #legend .legend-diamond-sm { width: 5px; height: 5px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
-    #legend .legend-diamond-lg { width: 11px; height: 11px; transform: rotate(45deg); flex-shrink: 0; background: #2eaa70; }
-    #legend .diamond-scale { display: flex; align-items: center; gap: 6px; margin-top: 2px; margin-left: 2px; }
-    #legend .diamond-scale span { font-size: 10px; color: #888; }
+    #legend .scale-ends {
+      display: flex; justify-content: space-between;
+      padding: 4px 10px 0; font-size: 10px; letter-spacing: 0.14em;
+    }
+    #legend .legend-body { padding: 4px 10px 8px; display: flex; flex-direction: column; gap: 3px; }
+    #legend .legend-title {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #000; margin-bottom: 3px;
+    }
+    #legend .legend-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: rgba(0,0,0,0.65); }
+    #legend .diamond-scale { display: inline-flex; align-items: center; gap: 5px; color: rgba(0,0,0,0.65); }
+    /* Green fill + black hairline: keeps the site's acid green legible at 5px. */
+    #legend .legend-diamond,
+    #legend .legend-diamond-sm,
+    #legend .legend-diamond-lg {
+      display: inline-block; transform: rotate(45deg); flex-shrink: 0;
+      background: #3BFF6A; border: 1px solid #000;
+    }
+    #legend .legend-diamond { width: 9px; height: 9px; }
+    #legend .legend-diamond-sm { width: 6px; height: 6px; }
+    #legend .legend-diamond-lg { width: 12px; height: 12px; }
+    #legend #legend-hint { font-size: 10px; color: rgba(0,0,0,0.4); margin-top: 4px; }
     /* Scroll story (iframe): always bottom-right, clear of the viewport edge */
     body.in-iframe #legend {
       left: auto; right: 20px; bottom: 80px; top: auto; transform: none;
@@ -73,15 +105,23 @@
       z-index: 20; display: none; flex-direction: column; gap: 10px;
     }
     #phase-dots .dot {
-      width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.25);
-      background: transparent; transition: background 0.3s, border-color 0.3s;
+      width: 7px; height: 7px; border-radius: 0; border: 1px solid #000;
+      background: transparent; transition: background 0.3s;
     }
-    #phase-dots .dot.active {
-      background: rgba(0,0,0,0.55); border-color: rgba(0,0,0,0.55);
-    }
+    #phase-dots .dot.active { background: #000; }
 
     @media (prefers-reduced-motion: reduce) {
       .commune-label { transition: none; }
+      #tooltip { transition: none !important; }
+    }
+
+    /* Mobile: full-bleed plate below the diagram. The bottom band is reserved
+       for the parent page's phase text / source note, so the plate stops short. */
+    @media (max-width: 1024px) {
+      #legend, body.in-iframe #legend {
+        left: 12px; right: 12px; top: 64%; bottom: auto;
+        transform: none; width: auto; min-width: 0;
+      }
     }
 
   </style>
@@ -95,20 +135,25 @@
     <div class="t-row"><span>Surface PV installee</span><span class="t-val t-inst"></span></div>
     <div class="t-row"><span>Ensoleillement annuel</span><span class="t-val t-irr"></span></div>
     <div class="t-bar"><div class="t-bar-fill"></div></div>
+    <div class="t-bar-scale"><span>Toitures équipées</span><span>0 — 20 %</span></div>
   </div>
 
   <div id="legend">
-    <div class="legend-title">Potentiel solaire des toitures a Bruxelles</div>
-    <div class="legend-row"><div class="grad-bar"></div><span>Annee : 2019 → 2026</span></div>
-    <div class="legend-row" style="gap:6px"><span style="font-size:11px;color:#555;">Rayon = part des toitures equipees en panneaux solaires</span></div>
-    <div class="legend-row"><div class="legend-diamond"></div><span>Projet de partage d'energie</span></div>
-    <div class="diamond-scale">
-      <div class="legend-diamond-sm"></div><span>5</span>
-      <div class="legend-diamond"></div><span>20</span>
-      <div class="legend-diamond-lg"></div><span>40</span>
-      <span style="color:#aaa;margin-left:4px;">projets</span>
+    <div class="grad-bar"></div>
+    <div class="scale-ends"><span>2019</span><span>2026</span></div>
+    <div class="legend-body">
+      <div class="legend-title">Potentiel solaire des toitures bruxelloises</div>
+      <div class="legend-row"><span>Rayon — part des toitures équipées</span></div>
+      <div class="legend-row">
+        <span>Partage d'énergie —</span>
+        <span class="diamond-scale">
+          <i class="legend-diamond-sm"></i>5
+          <i class="legend-diamond"></i>20
+          <i class="legend-diamond-lg"></i>40 projets
+        </span>
+      </div>
+      <div id="legend-hint">Glisser pour tourner · Survol pour détails</div>
     </div>
-    <div id="legend-hint" style="font-size:10px; color:#999; margin-top:6px;">Glisser pour tourner · Survol pour details</div>
   </div>
 
   <div id="phase-dots">
@@ -165,6 +210,8 @@
       .replace('Woluwé-St-Pierre', 'W-St-Pierre')
       .replace('Bruxelles-Ville', 'Bruxelles')
     );
+
+    let isMobile = window.innerWidth <= 1024;
 
     let labelEls = [];
     function createLabels() {
@@ -248,7 +295,10 @@
     function setup() {
       createCanvas(windowWidth, windowHeight);
       createLabels();
-      textFont('Helvetica Neue');
+      textFont('Alfphabet');
+      // The canvas paints once (noLoop) in scroll mode, so a late-loading
+      // webfont would otherwise leave the first frame in the fallback face.
+      if (document.fonts) document.fonts.ready.then(() => redraw());
       if (inIframe) {
         scrollMode = true;
         progress = 0;
@@ -273,8 +323,9 @@
       if (scrollMode) {
         if (scrollPhase === 1) {
           // Skip first 20% so the title has time to appear before 2019 draws
-          progress = scrollT * TOTAL_STEPS;
-          done = scrollT >= 1;
+          let t1 = max(0, (scrollT - 0.2) / 0.8);
+          progress = t1 * TOTAL_STEPS;
+          done = t1 >= 1;
           doneT = 0;
           showDiamonds = false;
           autoForest = false;
@@ -328,13 +379,15 @@
           if (tiltPhase === 0 && doneT > 0.6) tiltPhase = 1;
           if (tiltPhase === 1 && !autoTiltDone) {
             targetRotX = PI * 0.42;
-            tiltT = min(tiltT + 0.008, 1);
+            tiltT = min(tiltT + 0.008, 1); // ~125 frames, ~2s at 60fps
             if (tiltT >= 1) { tiltPhase = 2; autoTiltDone = true; }
           }
         }
       }
 
       if (!isDragging) {
+        // Exponential smoothing — already an ease-out; stacking another easing
+        // curve on top makes it converge quadratically and visibly stall.
         rotX += (targetRotX - rotX) * 0.08;
         rotZ += (targetRotZ - rotZ) * 0.08;
       }
@@ -350,9 +403,24 @@
         if (leg) leg.style.opacity = 1 - constrain(map(absRotX, 0, 0.3, 0, 1), 0, 1);
       }
 
-      let cx = width / 2;
-      let cy = height * (inIframe ? 0.33 : 0.38) + (isTilted ? -absRotX * 60 : 0);
       let R = min(width, height) * (inIframe ? 0.23 : 0.26);
+
+      let cx = width / 2;
+      if (!isMobile) {
+        // Desktop: the phase text is a 300px column at 8% from the left, so a
+        // centred diagram collides with it. Push right until there's a real
+        // gutter, without running the diagram off the right edge.
+        // ponytail: 300 mirrors .solar-step-label's max-width in style.css —
+        // one hardcoded constant across the iframe boundary; pass it in a
+        // postMessage if that column ever becomes variable.
+        const TEXT_RIGHT = width * 0.08 + 300;
+        const GUTTER = 56;
+        cx = max(cx, TEXT_RIGHT + GUTTER + R * 1.14);
+        cx = min(cx, width - R * 1.14 - 24);
+      }
+      let cyBase = height * (inIframe ? 0.33 : 0.38);
+      let cyOffset = isMobile ? 60 : 0; // Push diagram down on mobile
+      let cy = cyBase + cyOffset + (isTilted ? -absRotX * 60 : 0);
 
       translate(cx, cy);
 
@@ -472,8 +540,10 @@
           push();
           translate(proj.x, proj.y);
           rotate(PI / 4);
-          fill(46, 170, 112, ecAlpha);
-          noStroke();
+          // Site green, outlined — the acid fill alone disappears on white.
+          fill(59, 255, 106, ecAlpha);
+          stroke(0, 0, 0, ecAlpha);
+          strokeWeight(1);
           rectMode(CENTER);
           rect(0, 0, sz, sz);
           pop();
@@ -483,11 +553,20 @@
       // Year labels
       let maxDrawnYi = done ? NY - 1 : curYi;
       if (isTilted) {
-        // Profile: all years colored on the side
+        // Profile: years stacked down the side. Two things used to eat the
+        // middle labels (2024/2025): the axis sat at R*0.95, inside the band
+        // the energy diamonds occupy (r + 16, r up to R*0.95), and they cluster
+        // on the last year's plane; and consecutive labels are only
+        // 22*sin(rotX) apart, so below ~45deg of tilt they pile up.
+        let labAlpha = map(absRotX, 0.25, 0.4, 0, 230, true);
+        let spacing = 22 * Math.abs(Math.sin(rotX));
+        let stride = max(1, ceil(13 / max(spacing, 0.001)));
         for (let yi = 0; yi <= maxDrawnYi; yi++) {
+          // Always keep the first and last year; thin the rest only while the
+          // tilt is too shallow to fit them.
+          if (yi % stride !== 0 && yi !== maxDrawnYi && yi !== 0) continue;
           let [cr, cg, cb] = yearColorRGB(yi);
-          let labAlpha = map(absRotX, 0.25, 0.4, 0, 230, true);
-          let proj = project3D(-R * 0.95 - 20, 0, -yi * 22);
+          let proj = project3D(-R * 1.15 - 24, 0, -yi * 22);
           fill(cr, cg, cb, labAlpha);
           noStroke();
           textSize(yi === maxDrawnYi ? 14 : 11);
@@ -497,7 +576,7 @@
           textStyle(NORMAL);
         }
       } else {
-        // Top view: single current year in center, black
+        // Top view: current year in the centre, black
         let proj = project3D(0, 0, -curYi * 22);
         fill(0, 0, 0, 200);
         noStroke();
@@ -543,7 +622,7 @@
         tip.querySelector('.t-inst').textContent = (instM2 / 1000).toFixed(1) + ' k m²';
         tip.querySelector('.t-irr').textContent = YEARLY_IRRADIATION[best.year].total + ' kWh/m²';
         tip.querySelector('.t-bar-fill').style.width = (best.pct / 20 * 100) + '%';
-        tip.style.display = 'block';
+        tip.classList.add('visible');
         let useDataPos = labelHovered || (!labelHovered && scrollMode && autoForest);
         let tipX = useDataPos ? best.x : mx;
         let tipY = useDataPos ? best.y : my;
@@ -551,7 +630,7 @@
         tip.style.top = (tipY - 10) + 'px';
       } else if (!labelHovered) {
         hoveredCommune = -1;
-        tip.style.display = 'none';
+        tip.classList.remove('visible');
       }
     }
 
@@ -592,7 +671,10 @@
       document.body.classList.remove('dragging');
     }
 
-    function windowResized() { resizeCanvas(windowWidth, windowHeight); }
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      isMobile = window.innerWidth <= 1024;
+    }
 
     // Update phase dots indicator
     function updateDots(phase) {

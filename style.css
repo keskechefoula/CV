@@ -390,6 +390,9 @@ html {
 .rairsun-nav {
     display: flex;
     flex-direction: column;
+    /* Shrink each link to its text, like the home sommaire — as flex items they
+       would otherwise stretch and the green would run the full line. */
+    align-items: flex-start;
     gap: 14px;
     margin-bottom: 60px;
     padding-bottom: 30px;
@@ -404,10 +407,11 @@ html {
     letter-spacing: 0.05em;
 }
 
+/* Same treatment as .sommaire a:hover on the home page. */
 .rairsun-nav a:hover {
     background-color: var(--green);
     color: #000;
-    padding: 2px 6px;
+    padding: 2px 5px;
 }
 
 .rairsun-project {
@@ -798,11 +802,6 @@ html {
     opacity: 1;
     pointer-events: auto;
 }
-.solar-overlay-intro {
-    bottom: auto;
-    top: calc(100vh - 260px);
-    transition: top 0.4s cubic-bezier(0, 0, 0.2, 1);
-}
 .solar-overlay-title {
     font-family: inherit;
     font-weight: 700;
@@ -820,12 +819,53 @@ html {
 
 .solar-step-intro {
     padding-top: 60vh;
-    min-height: 300vh;
 }
 /* Intro description joins the title at the top and leaves together with it */
 .solar-step-intro .solar-step-label {
     margin-top: 50vh;
     top: 60px;
+}
+
+/* Mobile stack, top to bottom: title — diagram — legend plate — bottom band.
+   The bottom band holds the phase text (1–3) or the source note (5–6); those
+   phases never coexist, so one band serves both and neither meets the legend. */
+@media (max-width: 1024px) {
+    .solar-overlay-title {
+        top: 20px;
+        bottom: auto;
+        left: 60px;              /* clears the burger: 20px + 24px + padding */
+        right: 16px;
+        max-width: none;
+        background: none;        /* masthead sits on the canvas, not on a card */
+        padding: 0;
+        font-size: 15px;
+        font-weight: normal;     /* Alfphabet ships one weight; caps + tracking carry it */
+        letter-spacing: 0.16em;
+        color: #000;
+    }
+    /* Sticky labels are placed by the step's padding, not by left/right. */
+    .solar-step {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .solar-overlay-source,
+    .solar-step-label,
+    .solar-step[data-phase="2"] .solar-step-label,
+    .solar-step[data-phase="3"] .solar-step-label,
+    .solar-step-intro .solar-step-label {
+        top: auto;
+        bottom: 20px;
+        margin-top: 0;
+        display: block;
+        max-width: none;
+        border-radius: 0;
+        border: 1px solid #000;
+        background: #fff;
+    }
+    .solar-overlay-source {
+        left: 12px;
+        right: 12px;
+    }
 }
 
 .step-diamond {
@@ -871,9 +911,14 @@ html {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    text-align: right;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--green);
-    margin-bottom: 30px;
+    margin-bottom: 60px;
+}
+/* The solar steps reuse this class as an inline chip — keep those left-aligned. */
+.solar-step .rairsun-section-title {
+    text-align: left;
 }
 
 /* Bouton menu global (desktop + mobile) */
@@ -1075,8 +1120,11 @@ html {
     display: flex;
     gap: 32px;
     justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 60px;
+    /* No bottom margin: the section centres its content vertically, so an
+       asymmetric margin here pushed the phones off-centre. .rairsun-project
+       already carries the 80px separation. */
 }
 
 .mockup-wrap {
