@@ -223,6 +223,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const scroller = (rsPanel && rsPanel.scrollHeight > rsPanel.clientHeight)
                 ? rsPanel : window;
             scroller.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Remettre la spirale à son état d'ouverture. La phase 1 à t = 0
+            // remet progress, done, les losanges et la bascule à zéro, donc le
+            // protocole postMessage existant suffit : pas de rechargement.
+            const solarIframe = document.querySelector('.rairsun-solar-iframe');
+            if (solarIframe && solarIframe.contentWindow) {
+                solarIframe.contentWindow.postMessage({ mode: 'scroll', phase: 1, t: 0 }, '*');
+            }
         });
 
         function updateRairsunBack() {
