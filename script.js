@@ -206,6 +206,31 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Retour au sommaire RaYSun (2 lignes). Un cran moins profond que le menu
+    // global : il ne quitte pas le panneau, il y remonte au sommaire.
+    const rairsunBackBtn = document.getElementById('rairsun-back-btn');
+    const rsSommaire = document.getElementById('rs-sommaire');
+    if (rairsunBackBtn && rsSommaire) {
+        rairsunBackBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            rsSommaire.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        function updateRairsunBack() {
+            const inPanel = container.classList.contains('show-rairsun');
+            // Le sommaire est entièrement passé au-dessus : on est dans un projet.
+            const scrolledPast = rsSommaire.getBoundingClientRect().bottom < 0;
+            rairsunBackBtn.classList.toggle('visible', inPanel && scrolledPast);
+        }
+
+        // Le conteneur qui défile change selon la taille : le panneau sur
+        // desktop (height 100vh, overflow auto), la fenêtre sur mobile.
+        const rsPanel = document.querySelector('.rairsun-panel');
+        if (rsPanel) rsPanel.addEventListener('scroll', updateRairsunBack, { passive: true });
+        window.addEventListener('scroll', updateRairsunBack, { passive: true });
+        document.addEventListener('click', () => setTimeout(updateRairsunBack, 450));
+    }
+
     // Bouton menu global (desktop + mobile)
     const globalMenuBtn = document.getElementById('global-menu-btn');
     if (globalMenuBtn) {
@@ -267,6 +292,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. ÉCOUTEUR GLOBAL
     document.addEventListener("click", (e) => {
         if (e.target.closest('.global-menu-btn')) return;
+        // Sans ce garde, un clic sur le bouton retour RaYSun tomberait dans la
+        // branche "ni images ni projet" plus bas et fermerait tout le panneau.
+        if (e.target.closest('.rairsun-back-btn')) return;
         const clickedOnMiddle = e.target.closest('.right-col');
         const clickedOnLeft = e.target.closest('.left-col');
         const clickedOnImages = e.target.closest('.images-col');

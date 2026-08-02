@@ -115,12 +115,16 @@
       #tooltip { transition: none !important; }
     }
 
-    /* Mobile: full-bleed plate below the diagram. The bottom band is reserved
-       for the parent page's phase text / source note, so the plate stops short. */
+    /* Mobile: plate centred below the diagram, matched to its width. The
+       diagram spans 2 * 1.14 * R with R = 0.23 * min(w, h) — i.e. 52.4% of the
+       smaller viewport side. 240px floor so the key stays readable on a phone,
+       where the diagram itself is narrower than that. */
     @media (max-width: 1024px) {
       #legend, body.in-iframe #legend {
-        left: 12px; right: 12px; top: 64%; bottom: auto;
-        transform: none; width: auto; min-width: 0;
+        left: 50%; right: auto; top: 64%; bottom: auto;
+        transform: translateX(-50%);
+        width: clamp(240px, min(52.4vw, 52.4vh), calc(100% - 24px));
+        min-width: 0;
       }
     }
 
@@ -419,7 +423,10 @@
         cx = min(cx, width - R * 1.14 - 24);
       }
       let cyBase = height * (inIframe ? 0.33 : 0.38);
-      let cyOffset = isMobile ? 60 : 0; // Push diagram down on mobile
+      // Mobile: clear the pinned title, but only just. The legend below can't
+      // move down — the parent's description band sits right under it — so the
+      // gap between diagram and legend has to come from the dead space above.
+      let cyOffset = isMobile ? 16 : 0;
       let cy = cyBase + cyOffset + (isTilted ? -absRotX * 60 : 0);
 
       translate(cx, cy);

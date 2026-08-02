@@ -431,6 +431,7 @@ html {
     align-items: flex-start;
     justify-content: center;
     width: 100%;
+    margin-top: 80px;
 }
 
 .logo-col {
@@ -459,7 +460,6 @@ html {
     font-size: 22px;
     font-weight: 900;
     margin: 60px 0 16px;
-    text-align: center;
 }
 
 .rairsun-project h3:first-child {
@@ -855,11 +855,16 @@ html {
     .solar-step-intro .solar-step-label {
         top: auto;
         bottom: 20px;
-        margin-top: 0;
         display: block;
         max-width: none;
+        /* Same width as the diagram and the legend plate: the diagram spans
+           2 * 1.14 * R with R = 0.23 * min(w, h). Auto margins centre it —
+           including .solar-overlay-source, which is absolute with left/right
+           set, so auto margins centre it inside that box. */
+        width: clamp(240px, min(52.4vw, 52.4vh), 100%);
+        margin: 0 auto;
         border-radius: 0;
-        border: 1px solid #000;
+        border: none;
         background: #fff;
     }
     .solar-overlay-source {
@@ -911,14 +916,20 @@ html {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    text-align: right;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--green);
-    margin-bottom: 60px;
+    /* Scales with the viewport so the gap reads the same on a laptop and a
+       large display, without becoming airy on a phone. */
+    margin-bottom: clamp(64px, 9vh, 120px);
 }
-/* The solar steps reuse this class as an inline chip — keep those left-aligned. */
-.solar-step .rairsun-section-title {
+
+#rs-linkedin .rairsun-section-title,
+#rs-linkedin .rairsun-section-title,
+#rs-logos .rairsun-section-title {
     text-align: left;
+}
+#rs-logos .rairsun-section-title {
+    margin-bottom: 30px;
 }
 
 /* Bouton menu global (desktop + mobile) */
@@ -951,6 +962,39 @@ html {
 .brutal-container.show-rairsun .global-menu-btn {
     display: flex;
     left: calc(0% + 20px);
+}
+
+/* Retour au sommaire RaYSun — deux lignes contre trois pour le menu global.
+   Posé en haut à gauche de la 3e colonne (le panneau RaYSun), qui démarre à
+   30% en état show-rairsun : même motif de décalage que .global-menu-btn. */
+.rairsun-back-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.brutal-container.show-rairsun .rairsun-back-btn {
+    left: calc(30% + 20px);
+}
+
+.rairsun-back-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--green);
+}
+
+/* Visible seulement dans le panneau RaYSun, une fois le sommaire dépassé. */
+.brutal-container.show-rairsun .rairsun-back-btn.visible {
+    display: flex;
 }
 
 /* Bouton retour mobile (caché sur desktop) */
@@ -986,6 +1030,13 @@ html {
     .brutal-container.show-rairsun .global-menu-btn {
         display: flex;
         left: 20px;
+    }
+
+    /* Les colonnes s'empilent : plus de 3e colonne à 30%, donc le bouton
+       retour repasse à gauche, sous les trois lignes du menu global. */
+    .brutal-container.show-rairsun .rairsun-back-btn {
+        left: 20px;
+        top: 56px;
     }
 
     /* Cacher les anciens boutons retour mobile pour éviter le doublon */
@@ -1118,13 +1169,11 @@ html {
 
 .mockup-phones {
     display: flex;
-    gap: 32px;
+    gap: 80px;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    /* No bottom margin: the section centres its content vertically, so an
-       asymmetric margin here pushed the phones off-centre. .rairsun-project
-       already carries the 80px separation. */
+    margin-top: 120px;
 }
 
 .mockup-wrap {
