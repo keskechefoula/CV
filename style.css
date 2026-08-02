@@ -350,14 +350,6 @@ html {
     display: flex;
     flex-direction: column;
 }
-/* Sommaire en tête du premier écran. order: -1 le fait passer devant l'intro
-   sans toucher au HTML ; margin-bottom: auto pousse le reste vers le bas. */
-.rairsun-first-screen .rairsun-nav {
-    order: -1;
-    margin-top: 0;
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-}
 
 .rairsun-intro {
     margin-bottom: 40px;
