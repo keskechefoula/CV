@@ -930,6 +930,10 @@ html {
 }
 #rs-logos .rairsun-section-title {
     margin-bottom: 30px;
+    /* #rs-logos centre ses enfants (align-items: center) : sans stretch le
+       titre est une boîte au ras du texte, et text-align: left n'a aucun
+       effet. Les logos, eux, restent centrés. */
+    align-self: stretch;
 }
 
 /* Bouton menu global (desktop + mobile) */

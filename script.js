@@ -210,10 +210,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // global : il ne quitte pas le panneau, il y remonte au sommaire.
     const rairsunBackBtn = document.getElementById('rairsun-back-btn');
     const rsSommaire = document.getElementById('rs-sommaire');
+    // Le conteneur qui défile change selon la taille : le panneau sur desktop
+    // (height 100vh, overflow auto), la fenêtre sur mobile où il passe en auto.
+    const rsPanel = document.querySelector('.rairsun-panel');
     if (rairsunBackBtn && rsSommaire) {
         rairsunBackBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            rsSommaire.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Le sommaire est en bas du premier écran (margin-top: auto), donc
+            // scrollIntoView le collait au bord haut en laissant l'intro hors
+            // champ, et devait traverser des conteneurs de défilement imbriqués.
+            // Remonter le scroller à 0 affiche l'écran sommaire entier, en un clic.
+            const scroller = (rsPanel && rsPanel.scrollHeight > rsPanel.clientHeight)
+                ? rsPanel : window;
+            scroller.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         function updateRairsunBack() {
@@ -223,9 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
             rairsunBackBtn.classList.toggle('visible', inPanel && scrolledPast);
         }
 
-        // Le conteneur qui défile change selon la taille : le panneau sur
-        // desktop (height 100vh, overflow auto), la fenêtre sur mobile.
-        const rsPanel = document.querySelector('.rairsun-panel');
         if (rsPanel) rsPanel.addEventListener('scroll', updateRairsunBack, { passive: true });
         window.addEventListener('scroll', updateRairsunBack, { passive: true });
         document.addEventListener('click', () => setTimeout(updateRairsunBack, 450));
