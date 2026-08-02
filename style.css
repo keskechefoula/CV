@@ -357,6 +357,14 @@ html {
     border-bottom: 1px solid var(--green);
 }
 
+/* Le sommaire porte aussi .rairsun-scroll-section (min-height: 80vh,
+   justify-content: center) : ses liens flottaient au milieu du bloc au lieu
+   de suivre le filet vert de l'intro. */
+.rairsun-first-screen .rairsun-nav {
+    min-height: 0;
+    justify-content: flex-start;
+}
+
 .rairsun-tagline {
     font-size: 18px;
     font-weight: 900;
