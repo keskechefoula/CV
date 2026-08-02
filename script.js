@@ -210,19 +210,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // global : il ne quitte pas le panneau, il y remonte au sommaire.
     const rairsunBackBtn = document.getElementById('rairsun-back-btn');
     const rsSommaire = document.getElementById('rs-sommaire');
-    // Le conteneur qui défile change selon la taille : le panneau sur desktop
-    // (height 100vh, overflow auto), la fenêtre sur mobile où il passe en auto.
     const rsPanel = document.querySelector('.rairsun-panel');
     if (rairsunBackBtn && rsSommaire) {
         rairsunBackBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            // Le sommaire est en bas du premier écran (margin-top: auto), donc
-            // scrollIntoView le collait au bord haut en laissant l'intro hors
-            // champ, et devait traverser des conteneurs de défilement imbriqués.
-            // Remonter le scroller à 0 affiche l'écran sommaire entier, en un clic.
-            const scroller = (rsPanel && rsPanel.scrollHeight > rsPanel.clientHeight)
-                ? rsPanel : window;
-            scroller.scrollTo({ top: 0, behavior: 'smooth' });
+            // Le scroller change selon la mise en page : le panneau sur desktop
+            // (height 100vh, overflow auto), la fenêtre sur mobile où le
+            // conteneur passe en height auto. Ne pas choisir — les remonter tous
+            // les deux. Celui qui ne défile pas est un no-op, alors qu'un mauvais
+            // choix (transition de grille en cours, images pas encore chargées)
+            // rendait le premier clic sans effet et en imposait un second.
+            if (rsPanel) rsPanel.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
             // Remettre la spirale à son état d'ouverture. La phase 1 à t = 0
             // remet progress, done, les losanges et la bascule à zéro, donc le
