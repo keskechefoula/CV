@@ -107,7 +107,11 @@
     #phase-dots .dot {
       width: 7px; height: 7px; border-radius: 0; border: 1px solid #000;
       background: transparent; transition: background 0.3s;
+      position: relative; cursor: pointer;
     }
+    /* 7px est trop petit pour être visé : cible invisible de 25px autour. */
+    #phase-dots .dot::after { content: ''; position: absolute; inset: -9px; }
+    #phase-dots .dot:hover { background: #3BFF6A; }
     #phase-dots .dot.active { background: #000; }
 
     @media (prefers-reduced-motion: reduce) {
@@ -689,6 +693,14 @@
         d.classList.toggle('active', parseInt(d.dataset.phase) <= phase);
       });
     }
+
+    // L'indicateur sert aussi à naviguer : le défilement vit dans la page
+    // parente, donc le point ne peut que lui demander de s'y rendre.
+    document.querySelectorAll('#phase-dots .dot').forEach(d => {
+      d.addEventListener('click', () => {
+        parent.postMessage({ solarGoto: parseInt(d.dataset.phase) }, '*');
+      });
+    });
 
     // Touch-to-reveal tooltip (mobile)
     function handleTouch(e) {

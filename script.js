@@ -459,6 +459,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         window.addEventListener('scroll', updateSolarScroll, { passive: true });
 
+        // Clic sur un point de l'indicateur : l'iframe demande la phase, on
+        // amène l'étape correspondante sous la mi-hauteur — la ligne que la
+        // détection de phase utilise — pour atterrir au début de la phase et
+        // non à 28% dedans comme le ferait scrollIntoView({block:'start'}).
+        window.addEventListener('message', (e) => {
+            if (e.source !== solarIframe.contentWindow) return;
+            const phase = e.data && e.data.solarGoto;
+            if (typeof phase !== 'number') return;
+            const step = solarStory.querySelector('.solar-step[data-phase="' + phase + '"]');
+            if (!step) return;
+            const delta = step.getBoundingClientRect().top - window.innerHeight * 0.5;
+            // Un seul des deux défile selon la mise en page ; l'autre est inerte.
+            if (panel) panel.scrollBy({ top: delta, behavior: 'smooth' });
+            window.scrollBy({ top: delta, behavior: 'smooth' });
+        });
+
         // Fire once after iframe loads
         solarIframe.addEventListener('load', () => {
             setTimeout(updateSolarScroll, 100);
