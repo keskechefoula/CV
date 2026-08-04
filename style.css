@@ -144,6 +144,8 @@ html {
     text-transform: uppercase;
     margin-top: 5px;
     color: #666;
+    max-width: 500px; /* Limite la largeur */
+    line-height: 1.7; /* Améliore la lisibilité */
 }
 
 .sommaire ul {
