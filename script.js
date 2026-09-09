@@ -154,7 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (window.instgrm) window.instgrm.Embeds.process(grid);
                 const checkLoaded = setInterval(() => {
                     grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded):not(.insta-failed)').forEach(wrap => {
-                        if (wrap.querySelector('iframe')) wrap.classList.add('insta-loaded');
+                        const ifr = wrap.querySelector('iframe');
+                        if (ifr && ifr.offsetHeight > 50) wrap.classList.add('insta-loaded');
                     });
                 }, 500);
                 setTimeout(() => {
