@@ -65,7 +65,7 @@
     </script>
 
     <link rel="stylesheet" href="style.css">
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="fonts/Vevey-HumanKind.otf" as="font" type="font/otf" crossorigin>
 </head>
 <body>
 
@@ -77,46 +77,25 @@
         <!-- Retour au sommaire RaYSun : deux lignes, pour le distinguer des trois du menu global -->
         <button class="rairsun-back-btn" id="rairsun-back-btn" aria-label="Retour au sommaire des projets RaYSun"><span></span><span></span></button>
 
-        <!-- COLONNE 1 : Sommaire Fixe (Gauche) -->
-        <aside class="left-col">
-
-            <!-- Animation sphère (calque, visible en accueil uniquement) -->
-            <div id="home-sketch" class="home-sketch"><canvas id="sphere-canvas"></canvas></div>
-
-            <div class="sticky-content">
-                <div class="identity">
-                    <div class="logo">L.L</div>
-                    <p class="subtitle">Basé à Bruxelles, j’explore les liens entre image, espace, scénographie et dispositifs audiovisuels. Formé en arts numériques et en design numérique, je combine graphisme, web, vidéo, performance live et médiation culturelle. J’ai développé des expériences visuelles pour des communautés d’énergie verte, des événements, des festivals et des projets culturels. Je m’intéresse particulièrement au design thinking et aux approches centrées utilisateur pour créer des formes hybrides entre image, espace, technologie et narration.</div>
-                
-                <nav class="sommaire">
-                    <ul>
-                        <li><a href="#projets">EXPERIENCES</a></li>
-                        <li><a href="#parcours">FORMATIONS</a></li>
-                        <li><a href="#stack">TOOLS</a></li>
-                        <li><a href="#contact">CONTACT</a></li>
-                    </ul>
-                </nav>
-
-                <div class="status">
-                    <p>Bruxelles — Disponible</p>
-                    <a href="mailto:l.louka@outlook.com?subject=Contact%20via%20loukal.art" class="status-mail">l.louka@outlook.com</a>
-                </div>
-
-                <div class="carbon-widget" id="carbon-widget">
-                    <div class="carbon-label">CO₂ généré pour ce site</div>
-                    <div class="carbon-value">
-                        <span class="carbon-count" data-target="277.5">0</span><span class="carbon-unit">g</span>
-                    </div>
-                    <div class="carbon-bar-track">
-                        <div class="carbon-bar-fill" id="carbon-bar"></div>
-                    </div>
-                    <div class="carbon-meta">
-                        <span>1 125 974 tokens</span>
-                        <span>≈ 16,44 $</span>
-                    </div>
-                    <div class="carbon-equiv">≈ faire tourner une ampoule LED 230h</div>
-                </div>
+        <!-- En-tête fixe : logo + contacts, présent sur tous les écrans -->
+        <header class="site-header">
+            <div class="logo">ll</div>
+            <div class="identity-contacts">
+                <a href="mailto:l.louka@outlook.com?subject=Contact%20via%20loukal.art" class="identity-contact">@ L.LOUKA@OUTLOOK.COM</a>
+                <a href="https://www.instagram.com/follo_wam" target="_blank" rel="noopener" class="identity-contact">⁂@follo_wam</a>
             </div>
+        </header>
+
+        <!-- COLONNE 1 : intro plein écran, puis le sommaire après le scroll -->
+        <aside class="left-col">
+            <p class="hero-intro">Basé à&nbsp;Bruxelles, j’explore les liens entre image, espace, scénographie et dispositifs audiovisuels. Formé en arts numériques et en design numérique, je&nbsp;combine graphisme, web, vidéo, performance&nbsp;live et médiation culturelle. J’ai développé des expériences visuelles pour des communautés d’énergie verte, des événements, des festivals et des projets culturels. Je&nbsp;m’intéresse particulièrement au design&nbsp;thinking et aux approches centrées utilisateur pour créer des formes hybrides entre image, espace, technologie et&nbsp;narration.</p>
+
+            <nav class="sommaire">
+                <ul>
+                    <li><a href="#projets">EXPERIENCES</a></li>
+                    <li><a href="#parcours">FORMATIONS</a></li>
+                </ul>
+            </nav>
         </aside>
 
         <!-- COLONNE 2 : Contenu Textuel Défilant (Milieu) -->
@@ -129,8 +108,8 @@
                     
                     <!-- RaYSun -->
                     <div class="project-item" data-project="p1" data-panel="rairsun">
-                        <span class="date">MARS 2026 — EN COURS</span>
-                        <h3>Stagiaire Communication et Marketing</h3>
+                        <span class="date">MARS - JUIL 2026</span>
+                        <h3>Stage Communication et Marketing</h3>
                         <p class="role">RaYSun · Bruxelles</p>
                         <p>RaYSun crée des communautés d'énergie locales qui connectent entreprises, collectivités et copropriétés en Belgique. Conception des logos régionaux (CityWatt, WalloWatt, SamenWatt), charte graphique LinkedIn, stratégie de contenu B2B, production de supports marketing et intégration sur Odoo.</p>
                         <span class="project-link">VOIR PROJETS ↗</span>
@@ -152,6 +131,13 @@
                         <p class="role">Mont des Arts · Bruxelles</p>
                         <p>Coordination entre organisateurs de lieu et porteurs de projet pour un événement open air (Waffleskru × Bolingo). Communication et mise en relation.</p>
                         <span class="project-link">VOIR ÉVÉNEMENT ↗</span>
+                    </div>
+
+                    <!-- Projet 8 -->
+                    <div class="project-item" data-project="p8">
+                        <span class="date">AVRIL 2026</span>
+                        <h3>Résidence Péripétie</h3>
+                        <p class="role">City Gate · Bruxelles</p>
                     </div>
 
                     <!-- Projet 3 -->
@@ -217,43 +203,6 @@
                 </div>
             </section>
 
-            <!-- Section Skills -->
-            <section id="stack" class="brutal-section">
-                <h2 class="section-title">TOOLS</h2>
-                <div class="tech-list">
-                    <div class="tool-row">
-                        <span class="tool-cat">GRAPHISME</span>
-                        <span class="tool-items">Illustrator · Photoshop · Canva · Figma</span>
-                    </div>
-                    <div class="tool-row">
-                        <span class="tool-cat">WEB</span>
-                        <span class="tool-items">HTML/CSS/JS · Python · Git · SQL · Odoo · Vibe Coding</span>
-                    </div>
-                    <div class="tool-row">
-                        <span class="tool-cat">AUDIOVISUEL</span>
-                        <span class="tool-items">TouchDesigner · OBS · Resolume · Blender · CapCut · Opus Clip · Premiere Pro</span>
-                    </div>
-                    <div class="tool-row">
-                        <span class="tool-cat">IA</span>
-                        <span class="tool-items">Claude · Midjourney · ComfyUI · Stable Diffusion · Hugging Face</span>
-                    </div>
-                    <div class="tool-row">
-                        <span class="tool-cat">PRODUCTION</span>
-                        <span class="tool-items">Processing · Scratch · Impression 3D</span>
-                    </div>
-                    <div class="tool-row">
-                        <span class="tool-cat">BUREAUTIQUE</span>
-                        <span class="tool-items">Excel · Word · Microsoft 365</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section Contact (séparée) -->
-            <section id="contact" class="brutal-section section-contact">
-                <h2 class="section-title">CONTACT</h2>
-                <a href="mailto:l.louka@outlook.com" class="contact-link">L.LOUKA@OUTLOOK.COM ↗</a>
-            </section>
-
         </main>
 
         <!-- COLONNE 3 : Galerie d'images (Gérée par le JS) -->
@@ -268,39 +217,13 @@
                             <p class="rairsun-tagline">RaYSun crée des communautés d'énergie locales qui connectent entreprises, collectivités et copropriétés en Belgique.</p>
                             <a href="https://www.raysun.solar/" target="_blank" rel="noopener" class="rairsun-link">raysun.solar ↗</a>
                         </div>
-                        <nav class="rairsun-nav rairsun-scroll-section" id="rs-sommaire">
-                            <a href="#rs-solar">SPIRALE SOLAIRE</a>
+                        <nav class="rairsun-nav" id="rs-sommaire">
                             <a href="#rs-linkedin">IDENTITÉ GRAPHIQUE LINKEDIN</a>
                             <a href="#rs-logos">LOGOS RÉGIONAUX</a>
                         </nav>
                     </div>
 
-                    <div class="rairsun-solar-story" id="rs-solar">
-                        <div class="solar-sticky">
-                            <iframe src="RaYSun/solar-viz/index.html" class="rairsun-solar-iframe" title="Spirale Solaire de Bruxelles"></iframe>
-                            <h3 class="solar-overlay solar-overlay-title">SPIRALE SOLAIRE</h3>
-                            <p class="solar-overlay solar-overlay-source">Données Brugel, PVGIS (JRC) et cartographie du partage d'énergie. Les chiffres 2021 à 2026 sont des estimations basées sur les rapports annuels.</p>
-                        </div>
-                        <div class="solar-scroll-track">
-                            <div class="solar-step solar-step-intro" data-phase="1">
-                                <p class="solar-step-label">Potentiel solaire des toitures bruxelloises. Chaque trait relie les 19 communes, année par année, de 2019 à 2026. Plus un point est loin du centre, plus la commune a équipé ses toitures.</p>
-                            </div>
-                            <div class="solar-step" data-phase="2">
-                                <p class="solar-step-label"><span class="step-diamond"></span>Projets de partage d'énergie : des habitants se répartissent l'électricité solaire entre voisins ou au sein d'un même immeuble. Plus le losange est gros, plus il y a de projets actifs.</p>
-                            </div>
-                            <div class="solar-step" data-phase="3">
-                                <p class="solar-step-label">Survolez une commune pour explorer ses données. Exemple : Forest, 20,2 % de toitures équipées, en tête de la région.</p>
-                            </div>
-                            <div class="solar-step" data-phase="4">
-                            </div>
-                            <div class="solar-step" data-phase="5">
-                            </div>
-                            <div class="solar-step" data-phase="6">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rairsun-project rairsun-scroll-section" id="rs-linkedin">
+                    <div class="rairsun-project" id="rs-linkedin">
                         <h3 class="rairsun-section-title">IDENTITÉ GRAPHIQUE LINKEDIN</h3>
 
                         <div class="mockup-phones">
@@ -417,7 +340,7 @@
 
                     </div><!-- /rs-linkedin -->
 
-                    <div class="rairsun-project rairsun-scroll-section" id="rs-logos">
+                    <div class="rairsun-project" id="rs-logos">
                         <h3 class="rairsun-section-title">LOGOS RÉGIONAUX</h3>
 
                         <div class="logos-row">
@@ -481,88 +404,17 @@
                     <div class="insta-grid" data-lazy-posts="DZfEuNTt8Tq"></div>
                 </div>
 
+                <!-- Résidence Péripétie — City Gate -->
+                <div class="gallery-group" id="gallery-p8">
+                    <button class="gallery-back mobile-back-btn"><span></span><span></span><span></span></button>
+                    <div class="insta-grid" data-lazy-posts="DXGghqejEaw"></div>
+                </div>
+
             </div>
         </aside>
 
     </div>
 
     <script src="script.js"></script>
-
-    <!-- Sphère de particules (Canvas natif, aucun lib externe) -->
-    <script>
-    (function() {
-        const cnv = document.getElementById('sphere-canvas');
-        if (!cnv) return;
-        const ctx = cnv.getContext('2d');
-        const isMobile = /iPhone|iPod|Android/i.test(navigator.userAgent);
-        const PARTICLES = 8000;
-        const ATTRACTION = 0.01;
-        const DAMPING = 0.9;
-        const REPEL_STRENGTH = 28;
-
-        let W, H, radius_, repel_radius;
-        let mouseX = -9999, mouseY = -9999;
-        let angle = 0;
-        const pts = new Array(PARTICLES);
-        for (let i = 0; i < PARTICLES; i++) pts[i] = { i, x: 0, y: 0, vx: 0, vy: 0 };
-
-        function size() {
-            if (isMobile) return { w: 360, h: 360, r: 160, rr: 60 };
-            const w = Math.max(400, Math.min(window.innerWidth * 0.55, 1400));
-            const h = Math.max(400, Math.min(window.innerHeight * 0.72, 1100));
-            const r = Math.max(120, Math.min(window.innerHeight * 0.16, 240));
-            return { w, h, r, rr: r * 0.5 };
-        }
-
-        function resize() {
-            const s = size();
-            W = s.w; H = s.h; radius_ = s.r; repel_radius = s.rr;
-            cnv.width = W; cnv.height = H;
-            cnv.style.width = W + 'px'; cnv.style.height = H + 'px';
-            for (const p of pts) {
-                p.x = Math.sin(p.i + angle) * Math.sin(p.i * p.i) * radius_;
-                p.y = Math.cos(p.i * p.i) * radius_;
-                p.vx = 0; p.vy = 0;
-            }
-        }
-
-        cnv.addEventListener('mousemove', e => {
-            const r = cnv.getBoundingClientRect();
-            mouseX = e.clientX - r.left - W / 2;
-            mouseY = e.clientY - r.top - H / 2;
-        });
-        cnv.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
-        window.addEventListener('resize', resize);
-        resize();
-
-        const rr2 = () => repel_radius * repel_radius;
-
-        function frame() {
-            ctx.clearRect(0, 0, W, H);
-            ctx.fillStyle = '#3BFF6A';
-            const cx = W / 2, cy = H / 2;
-            const rrsq = rr2();
-            for (const p of pts) {
-                const hx = Math.sin(p.i + angle) * Math.sin(p.i * p.i) * radius_;
-                const hy = Math.cos(p.i * p.i) * radius_;
-                p.vx += (hx - p.x) * ATTRACTION;
-                p.vy += (hy - p.y) * ATTRACTION;
-                const dx = p.x - mouseX, dy = p.y - mouseY;
-                const d2 = dx * dx + dy * dy;
-                if (d2 > 0.1 && d2 < rrsq) {
-                    const d = Math.sqrt(d2);
-                    const f = REPEL_STRENGTH * (1 - d / repel_radius) / d;
-                    p.vx += dx * f; p.vy += dy * f;
-                }
-                p.vx *= DAMPING; p.vy *= DAMPING;
-                p.x += p.vx; p.y += p.vy;
-                ctx.fillRect(cx + p.x, cy + p.y, 2, 2);
-            }
-            angle += 0.01;
-            requestAnimationFrame(frame);
-        }
-        requestAnimationFrame(frame);
-    })();
-    </script>
 </body>
 </html>

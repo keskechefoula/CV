@@ -1,27 +1,4 @@
 
-// Animation compteur CO₂
-function animateCarbon() {
-    const el = document.querySelector('.carbon-count');
-    const bar = document.getElementById('carbon-bar');
-    if (!el) return;
-
-    const target = parseFloat(el.dataset.target);
-    const duration = 2400;
-    const start = performance.now();
-
-    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-
-    function tick(now) {
-        const t = Math.min((now - start) / duration, 1);
-        const val = easeOut(t) * target;
-        el.textContent = val.toFixed(1);
-        if (bar) bar.style.width = (easeOut(t) * 100) + '%';
-        if (t < 1) requestAnimationFrame(tick);
-    }
-
-    requestAnimationFrame(tick);
-}
-
 // Carousel swipeable + autoplay
 function initCarousel(el) {
     const slides = el.querySelector('.carousel-slides');
@@ -66,17 +43,23 @@ function initCarousel(el) {
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.carousel').forEach(initCarousel);
 
-    setTimeout(animateCarbon, 800);
     const container = document.querySelector(".brutal-container");
     const menuLinks = document.querySelectorAll(".sommaire a");
     const projects = document.querySelectorAll(".project-item");
     const galleryGroups = document.querySelectorAll(".gallery-group");
-    const logo = document.querySelector(".identity");
+    const logo = document.querySelector(".site-header .logo");
+    const sections = document.querySelectorAll(".right-col .brutal-section");
 
     // 1. CLIC SUR LE SOMMAIRE (Ouvre la 2e colonne, ferme col3)
     menuLinks.forEach(link => {
         link.addEventListener("click", (e) => {
             e.stopPropagation();
+            // Une seule section visible : pas de saut d'ancre, la liste repart du haut.
+            e.preventDefault();
+            menuLinks.forEach(l => l.classList.toggle("active", l === link));
+            sections.forEach(s => { s.hidden = "#" + s.id !== link.getAttribute("href"); });
+            document.querySelector(".right-col").scrollTop = 0;
+            if (isMobile()) document.querySelector(link.getAttribute("href")).scrollIntoView();
             projects.forEach(p => p.classList.remove("selected"));
             container.classList.remove("show-gallery");
             container.classList.remove("show-rairsun");
@@ -144,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 bq.className = 'instagram-media';
                 bq.dataset.instgrmPermalink = postUrl(id) + '?utm_source=ig_embed&utm_campaign=loading';
                 bq.dataset.instgrmVersion = '14';
+                bq.dataset.instgrmCaptioned = '';
                 bq.style.cssText = 'background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15);margin:0;min-width:260px;padding:0;width:100%;';
 
                 wrap.appendChild(loader);
@@ -153,17 +137,21 @@ document.addEventListener("DOMContentLoaded", () => {
             loadIgScript(() => {
                 if (window.instgrm) window.instgrm.Embeds.process(grid);
                 const checkLoaded = setInterval(() => {
-                    grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded):not(.insta-failed)').forEach(wrap => {
+                    grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded)').forEach(wrap => {
                         const ifr = wrap.querySelector('iframe');
-                        if (ifr && ifr.offsetHeight > 50) wrap.classList.add('insta-loaded');
+                        if (ifr && ifr.offsetHeight > 50) {
+                            wrap.classList.remove('insta-failed');
+                            wrap.classList.add('insta-loaded');
+                        }
                     });
                 }, 500);
+                // 10 s : bouton de secours, mais on continue d'écouter — certains posts arrivent après.
                 setTimeout(() => {
-                    clearInterval(checkLoaded);
                     grid.querySelectorAll('.insta-lazy-wrap:not(.insta-loaded)').forEach(wrap => {
                         wrap.classList.add('insta-failed');
                     });
                 }, 10000);
+                setTimeout(() => clearInterval(checkLoaded), 60000);
             });
         });
 
@@ -223,14 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // rendait le premier clic sans effet et en imposait un second.
             if (rsPanel) rsPanel.scrollTo({ top: 0, behavior: 'smooth' });
             window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Remettre la spirale à son état d'ouverture. La phase 1 à t = 0
-            // remet progress, done, les losanges et la bascule à zéro, donc le
-            // protocole postMessage existant suffit : pas de rechargement.
-            const solarIframe = document.querySelector('.rairsun-solar-iframe');
-            if (solarIframe && solarIframe.contentWindow) {
-                solarIframe.contentWindow.postMessage({ mode: 'scroll', phase: 1, t: 0 }, '*');
-            }
         });
 
         function updateRairsunBack() {
@@ -305,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 4. ÉCOUTEUR GLOBAL
     document.addEventListener("click", (e) => {
-        if (e.target.closest('.global-menu-btn')) return;
+        if (e.target.closest('.global-menu-btn, .site-header')) return;
         // Sans ce garde, un clic sur le bouton retour RaYSun tomberait dans la
         // branche "ni images ni projet" plus bas et fermerait tout le panneau.
         if (e.target.closest('.rairsun-back-btn')) return;
@@ -367,118 +347,4 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.insta-grid').forEach(grid => {
         embedObserver.observe(grid, { childList: true, subtree: true });
     });
-
-    // Scroll-driven solar viz
-    const solarStory = document.querySelector('.rairsun-solar-story');
-    if (solarStory) {
-        const solarIframe = solarStory.querySelector('iframe');
-        const steps = solarStory.querySelectorAll('.solar-step[data-phase]');
-        const panel = solarStory.closest('.rairsun-panel');
-        const solarTitle = solarStory.querySelector('.solar-overlay-title');
-        const solarSource = solarStory.querySelector('.solar-overlay-source');
-        const solarMobile = window.matchMedia('(max-width: 1024px)');
-        let solarAutoTransitioned = false;
-
-        function updateSolarScroll() {
-            if (!solarIframe.contentWindow) return;
-            const storyRect = solarStory.getBoundingClientRect();
-
-            if (storyRect.bottom < 0 || storyRect.top > window.innerHeight) {
-                solarIframe.contentWindow.postMessage('solar-pause', '*');
-                return;
-            }
-            solarIframe.contentWindow.postMessage('solar-resume', '*');
-
-            // The active step is the one crossing the viewport midline. Picking
-            // "highest phase with t > 0" instead handed over as soon as the next
-            // step's top edge appeared — at 64% of the current step — so phase 1
-            // only ever drew up to 2023 before phase 2 snapped the spiral to
-            // 2026, and phase 5's tilt barely started before phase 6 jumped it.
-            // Steps are contiguous, so exactly one contains the line.
-            let bestPhase = 0;
-            let bestT = 0;
-            let lastPhase = 0;
-            let pastEnd = false;
-            const line = window.innerHeight * 0.5;
-
-            steps.forEach(step => {
-                const phase = parseInt(step.dataset.phase);
-                if (isNaN(phase)) return;
-                if (phase > lastPhase) lastPhase = phase;
-                const rect = step.getBoundingClientRect();
-                if (rect.bottom <= line) pastEnd = true;
-                if (rect.top <= line && rect.bottom > line) {
-                    bestPhase = phase;
-                    bestT = Math.max(0, Math.min(1, (line - rect.top) / rect.height));
-                }
-            });
-
-            if (bestPhase === 0) {
-                // No step on the line: either above the story, or scrolled past it.
-                if (pastEnd) { bestPhase = lastPhase; bestT = 1; }
-                else { bestPhase = 1; bestT = 0; }
-            }
-
-            // Brugel source visible from phase 5, stays through the tilt (phase 6)
-            if (solarTitle) {
-                solarTitle.classList.toggle('visible', bestPhase === 1);
-                if (solarMobile.matches) {
-                    // Mobile: CSS pins the title at the top, no rise animation.
-                    solarTitle.style.top = '';
-                    solarTitle.style.bottom = '';
-                } else if (bestPhase === 1) {
-                    const startTop = window.innerHeight - 80 - 40;
-                    const endTop = 24;
-                    const p = Math.min(bestT / 0.4, 1);
-                    solarTitle.style.top = (startTop + (endTop - startTop) * p) + 'px';
-                    solarTitle.style.bottom = 'auto';
-                }
-            }
-            if (solarSource) {
-                solarSource.classList.toggle('visible', bestPhase === 5 || bestPhase === 6);
-            }
-
-            solarIframe.contentWindow.postMessage({
-                mode: 'scroll', phase: bestPhase, t: bestT
-            }, '*');
-
-            // Auto-transition to next project after tilt completes
-            if (bestPhase === 6 && bestT >= 0.95 && !solarAutoTransitioned) {
-                solarAutoTransitioned = true;
-                const nextSection = document.getElementById('rs-linkedin');
-                if (nextSection && panel) {
-                    setTimeout(() => {
-                        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 600);
-                }
-            }
-            if (bestPhase < 6) solarAutoTransitioned = false;
-        }
-
-        if (panel) {
-            panel.addEventListener('scroll', updateSolarScroll, { passive: true });
-        }
-        window.addEventListener('scroll', updateSolarScroll, { passive: true });
-
-        // Clic sur un point de l'indicateur : l'iframe demande la phase, on
-        // amène l'étape correspondante sous la mi-hauteur — la ligne que la
-        // détection de phase utilise — pour atterrir au début de la phase et
-        // non à 28% dedans comme le ferait scrollIntoView({block:'start'}).
-        window.addEventListener('message', (e) => {
-            if (e.source !== solarIframe.contentWindow) return;
-            const phase = e.data && e.data.solarGoto;
-            if (typeof phase !== 'number') return;
-            const step = solarStory.querySelector('.solar-step[data-phase="' + phase + '"]');
-            if (!step) return;
-            const delta = step.getBoundingClientRect().top - window.innerHeight * 0.5;
-            // Un seul des deux défile selon la mise en page ; l'autre est inerte.
-            if (panel) panel.scrollBy({ top: delta, behavior: 'smooth' });
-            window.scrollBy({ top: delta, behavior: 'smooth' });
-        });
-
-        // Fire once after iframe loads
-        solarIframe.addEventListener('load', () => {
-            setTimeout(updateSolarScroll, 100);
-        });
-    }
 });

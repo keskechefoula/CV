@@ -31,13 +31,6 @@ html {
     font-style: normal;
 }
 
-@font-face {
-    font-family: 'Alfphabet';
-    src: url('fonts/Alfphabet-I.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
-
 :root {
     --green: #3BFF6A;
 }
@@ -47,7 +40,7 @@ html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Alfphabet', 'Courier New', Courier, monospace, sans-serif;
+    font-family: 'Vevey', 'Helvetica Neue', sans-serif;
     color: #000000;
 }
 
@@ -71,13 +64,10 @@ html {
 .brutal-container.show-content {
     grid-template-columns: 35% 65% 0%;
 }
-.brutal-container.show-content .home-sketch {
-    display: none;
-}
 
-/* État 3 : La totale (Sommaire + Contenu + Images) */
+/* État 3 (posts Insta / Facebook) : l'inverse de RaYSun, 70% liste / 30% contenu */
 .brutal-container.show-gallery {
-    grid-template-columns: 25% 45% 30%;
+    grid-template-columns: 0% 70% 30%;
 }
 
 /* État RairSun : col1 cachée, col2 étroite, col3 large */
@@ -104,220 +94,169 @@ html {
     pointer-events: auto;
 }
 
-/* Col1 disparait en état rairsun */
+/* Col1 disparait quand une galerie ou RaYSun est ouvert */
 .left-col {
     transition: opacity 0.3s ease;
 }
+.brutal-container.show-gallery .left-col,
 .brutal-container.show-rairsun .left-col {
     opacity: 0;
     pointer-events: none;
     overflow: hidden;
 }
 
-/* --- STYLE DE LA COLONNE DE GAUCHE (SOMMAIRE) --- */
-.left-col {
-    padding: 80px 10%;
-    background-color: #ffffff;
-    border-right: 1px solid var(--green);
-    position: relative;
-    overflow: hidden;
+/* --- EN-TÊTE FIXE (logo + contacts) --- */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 998;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff;
 }
 
-.sticky-content {
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 160px);
+.site-header .logo {
+    font-size: 96px;
+    line-height: 0.84;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+}
+
+.identity-contacts {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    padding-top: 10px;
 }
 
-.logo {
-    font-family: 'Vevey', 'Courier New', monospace;
-    font-size: 32px;
-    font-weight: 900;
-    letter-spacing: -1px;
+.identity-contact {
+    font-size: 24px;
+    line-height: 33px;
+    text-decoration: none;
 }
 
-.subtitle {
-    font-size: 13px;
-    margin-top: 5px;
-    color: #666;
-    max-width: 500px; /* Limite la largeur */
-    line-height: 1.7; /* Améliore la lisibilité */
+/* Survol : tout ce qui est cliquable se surligne en vert */
+a:hover,
+.site-header .logo:hover,
+.project-item:hover {
+    background-color: var(--green);
+}
+
+/* --- COLONNE DE GAUCHE : intro plein écran puis sommaire --- */
+.left-col {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    background-color: #ffffff;
+    border-right: 1px solid transparent;
+}
+
+.left-col::-webkit-scrollbar {
+    display: none;
+}
+
+.brutal-container.show-content .left-col {
+    border-right-color: var(--green);
+}
+
+.hero-intro {
+    min-height: 100vh;
+    padding-top: 84px;
+    font-size: 3.55vw;
+    line-height: 1.34;
+    /* Microtypo : crénage de la fonte, lignes équilibrées sans mot orphelin,
+       ponctuation suspendue (Safari), approche resserrée pour le grand corps. */
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    text-wrap: pretty;
+    hanging-punctuation: first last;
+    letter-spacing: -0.01em;
+}
+
+.brutal-container.show-content .hero-intro {
+    display: none;
+}
+
+.sommaire {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 28px 24px;
 }
 
 .sommaire ul {
     list-style: none;
 }
 
-.sommaire li {
-    margin-bottom: 20px;
-}
-
 .sommaire a {
+    font-size: 48px;
+    line-height: 1.15;
     text-decoration: none;
-    font-size: 16px;
-    font-weight: 900;
 }
 
-.sommaire a:hover {
-    background-color: var(--green);
-    color: #000000;
-    padding: 2px 5px;
+.sommaire a.active {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
 }
 
-.status {
-    font-size: 13px;
-    text-transform: uppercase;
-}
-
-/* --- STYLE DE LA COLONNE DU MILIEU --- */
+/* --- COLONNE DU MILIEU : liste date / intitulé / lieu --- */
 .right-col {
-    padding: 0 5%;
+    padding: 72px 36px;
     height: 100vh;
     overflow-y: auto;
+}
+
+/* La liste passe en 1re colonne, sous l'en-tête fixe */
+.brutal-container.show-gallery .right-col,
+.brutal-container.show-rairsun .right-col {
+    padding: 124px 28px 72px;
     border-right: 1px solid var(--green);
 }
 
-.brutal-section {
-    padding: 100px 0;
-}
-
 .section-title {
-    font-family: 'Vevey', 'Courier New', monospace;
-    font-size: 24px;
-    font-weight: 900;
-    margin-bottom: 60px;
+    display: none;
 }
 
 .projects-list {
     display: flex;
     flex-direction: column;
-    gap: 80px;
+    gap: 60px;
 }
 
-/* --- INTERACTION SUR LES PROJETS --- */
+.project-item,
+.cv-item {
+    font-size: 25px;
+    line-height: 1.36;
+}
+
 .project-item {
     cursor: pointer;
-    padding: 20px;
-    margin: -20px;
-    transition: background 0.2s ease;
+    width: fit-content;
 }
 
-.project-item:hover {
-    background-color: #f5f5f5;
-}
-
-.project-item.selected {
-    background-color: var(--green);
-}
-
-.project-item.selected h3,
-.project-item.selected p,
-.project-item.selected .project-link {
-    color: #000000;
-}
-
-.project-item h3 {
-    font-family: 'Vevey', 'Courier New', monospace;
-    font-size: 24px;
-    font-weight: 900;
-    margin-bottom: 15px;
-}
-
+.project-item .date,
+.project-item h3,
+.cv-item .date,
 .cv-item h3 {
-    font-family: 'Vevey', 'Courier New', monospace;
+    display: block;
+    font: inherit;
 }
 
-.project-item p {
-    font-size: 15px;
-    line-height: 1.6;
+.project-item.selected h3 {
+    text-decoration: underline;
 }
 
+.project-item > p:not(.role, .degree),
+.cv-item > p:not(.degree),
 .project-link {
-    display: inline-block;
-    margin-top: 15px;
-    font-weight: 900;
-    text-decoration: none;
+    display: none;
 }
 
 .cv-item {
-    margin-bottom: 40px;
-}
-
-.date {
-    font-size: 12px;
-    font-weight: 900;
-    color: #666;
-}
-
-.cv-item h3 {
-    font-size: 22px;
-    margin: 5px 0 10px 0;
-}
-
-.tech-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.tool-row {
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    gap: 12px;
-    align-items: baseline;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 16px;
-    max-width: 600px;
-}
-
-.tool-row {
-    transition: color 0.15s ease;
-}
-
-.tool-row:hover {
-    border-bottom-color: var(--green);
-}
-
-.tool-row:hover .tool-cat,
-.tool-row:hover .tool-items {
-    color: var(--green);
-}
-
-.tool-cat {
-    font-family: 'Vevey', 'Courier New', monospace;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.1em;
-    color: #000;
-    white-space: nowrap;
-    transition: color 0.15s ease;
-}
-
-.tool-items {
-    font-size: 13px;
-    color: #444;
-    line-height: 1.6;
-    transition: color 0.15s ease;
-}
-
-.contact-text {
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-
-.contact-link {
-    font-size: 28px;
-    font-weight: 900;
-    text-decoration: none;
-    word-break: break-all;
-}
-
-.contact-link:hover {
-    background: var(--green);
-    color: #000;
+    margin-bottom: 60px;
 }
 
 /* --- STYLE DE LA COLONNE IMAGES --- */
@@ -346,24 +285,10 @@ html {
     gap: 0;
 }
 
-.rairsun-first-screen {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
 .rairsun-intro {
     margin-bottom: 40px;
     padding-bottom: 30px;
     border-bottom: 1px solid var(--green);
-}
-
-/* Le sommaire porte aussi .rairsun-scroll-section (min-height: 80vh,
-   justify-content: center) : ses liens flottaient au milieu du bloc au lieu
-   de suivre le filet vert de l'intro. */
-.rairsun-first-screen .rairsun-nav {
-    min-height: 0;
-    justify-content: flex-start;
 }
 
 .rairsun-tagline {
@@ -398,7 +323,7 @@ html {
        would otherwise stretch and the green would run the full line. */
     align-items: flex-start;
     gap: 14px;
-    margin-bottom: 60px;
+    margin-bottom: 30px;
     padding-bottom: 30px;
     border-bottom: 1px solid var(--green);
 }
@@ -564,47 +489,15 @@ html {
     display: flex;
 }
 
-.insta-lazy-wrap.insta-failed blockquote {
-    display: none;
+/* Invisible mais pas display:none : embed.js doit pouvoir mesurer et agrandir
+   l'iframe si le post arrive après le délai. */
+.insta-lazy-wrap.insta-failed .instagram-media {
+    opacity: 0;
 }
 
 .sticky-images {
     position: sticky;
     top: 80px;
-}
-
-/* Sketch sphère — calque dans la colonne d'accueil */
-.home-sketch {
-    position: absolute;
-    top: 35%;
-    right: 32%;
-    transform: translate(50%, -50%);
-    opacity: 1;
-    transition: opacity 0.35s ease;
-    line-height: 0;
-    z-index: 5;
-}
-
-.home-sketch canvas {
-    display: block;
-}
-
-.brutal-container.show-content .home-sketch,
-.brutal-container.show-gallery .home-sketch,
-.brutal-container.show-rairsun .home-sketch {
-    pointer-events: none;
-}
-
-/* Disparaît dès qu'une section s'ouvre (la colonne se rétrécit) */
-.brutal-container.show-content .home-sketch,
-.brutal-container.show-gallery .home-sketch,
-.brutal-container.show-rairsun .home-sketch {
-    opacity: 0;
-    pointer-events: none;
-}
-
-@media (max-width: 1024px) {
-    .home-sketch { display: none; }
 }
 
 .project-img {
@@ -627,292 +520,12 @@ html {
     text-align: right;
 }
 
-/* --- CARBON WIDGET --- */
-.carbon-widget {
-    border-top: 1px solid var(--green);
-    padding-top: 20px;
-}
-
-.carbon-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #888;
-    margin-bottom: 8px;
-}
-
-.carbon-value {
-    display: flex;
-    align-items: baseline;
-    gap: 3px;
-    margin-bottom: 12px;
-}
-
-.carbon-count {
-    font-family: 'Vevey', 'Courier New', monospace;
-    font-size: 42px;
-    font-weight: 900;
-    line-height: 1;
-    color: var(--green);
-    letter-spacing: -2px;
-}
-
-.carbon-unit {
-    font-size: 16px;
-    font-weight: 900;
-    color: var(--green);
-}
-
-.carbon-bar-track {
-    width: 100%;
-    height: 2px;
-    background: #e8e8e8;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-
-.carbon-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--green);
-    transition: width 2.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.carbon-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #aaa;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.carbon-equiv {
-    font-size: 10px;
-    color: #bbb;
-    font-style: italic;
-    line-height: 1.4;
-}
-
-/* Caché sur mobile */
-@media (max-width: 1024px) {
-    .carbon-widget {
-        display: none;
-    }
-}
-
-/* Séparateur visuel entre Tools et Contact */
-.section-contact {
-    border-top: 1px solid var(--green);
-}
-
 /* Photo équipe RaYSun */
 .rairsun-team-photo {
     width: 100%;
     border-radius: 4px;
     margin-bottom: 40px;
 }
-
-/* Sommaire plein écran */
-.rairsun-scroll-section {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-/* Spirale Solaire scroll-driven story */
-.rairsun-solar-story {
-    position: relative;
-    margin-left: -8%;
-    margin-right: -8%;
-}
-
-.solar-sticky {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    width: 100%;
-    z-index: 1;
-}
-
-.rairsun-solar-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-}
-
-.solar-scroll-track {
-    position: relative;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.solar-step {
-    min-height: 180vh;
-    display: block;
-    padding: 0 8%;
-    padding-top: 100vh;
-    pointer-events: none;
-}
-
-.solar-step-label {
-    font-size: 13px;
-    color: rgba(0,0,0,0.5);
-    max-width: 300px;
-    line-height: 1.5;
-    background: rgba(255,255,255,0.92);
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: inline-block;
-    pointer-events: auto;
-    position: sticky;
-    top: 24px;
-}
-
-.solar-step .rairsun-section-title {
-    background: rgba(255,255,255,0.92);
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    border-bottom: none;
-    width: auto;
-    pointer-events: auto;
-}
-
-/* Overlays live inside .solar-sticky (sticky, 100vh) so they stay onscreen
-   through the whole story; JS toggles .visible to fade them per phase. */
-.solar-overlay {
-    position: absolute;
-    left: 8%;
-    bottom: 80px;
-    max-width: 300px;
-    margin: 0;
-    padding: 8px 12px;
-    background: rgba(255,255,255,0.92);
-    border-radius: 6px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: rgba(0,0,0,0.55);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
-    z-index: 5;
-}
-.solar-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-.solar-overlay-title {
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 16px;
-    color: #111;
-    letter-spacing: 0.02em;
-}
-
-
-/* Phases 2 & 3: description pinned at TOP for the whole step (~few seconds) */
-.solar-step[data-phase="2"] .solar-step-label,
-.solar-step[data-phase="3"] .solar-step-label {
-    top: 24px;
-}
-
-.solar-step-intro {
-    padding-top: 60vh;
-}
-/* Intro description joins the title at the top and leaves together with it */
-.solar-step-intro .solar-step-label {
-    margin-top: 50vh;
-    top: 60px;
-}
-
-/* Mobile stack, top to bottom: title — diagram — legend plate — bottom band.
-   The bottom band holds the phase text (1–3) or the source note (5–6); those
-   phases never coexist, so one band serves both and neither meets the legend. */
-@media (max-width: 1024px) {
-    .solar-overlay-title {
-        top: 20px;
-        bottom: auto;
-        left: 60px;              /* clears the burger: 20px + 24px + padding */
-        right: 16px;
-        max-width: none;
-        background: none;        /* masthead sits on the canvas, not on a card */
-        padding: 0;
-        font-size: 15px;
-        font-weight: normal;     /* Alfphabet ships one weight; caps + tracking carry it */
-        letter-spacing: 0.16em;
-        color: #000;
-    }
-    /* Sticky labels are placed by the step's padding, not by left/right. */
-    .solar-step {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-    .solar-overlay-source,
-    .solar-step-label,
-    .solar-step[data-phase="2"] .solar-step-label,
-    .solar-step[data-phase="3"] .solar-step-label,
-    .solar-step-intro .solar-step-label {
-        top: auto;
-        bottom: 20px;
-        display: block;
-        max-width: none;
-        /* Same width as the diagram and the legend plate: the diagram spans
-           2 * 1.14 * R with R = 0.23 * min(w, h). Auto margins centre it —
-           including .solar-overlay-source, which is absolute with left/right
-           set, so auto margins centre it inside that box. */
-        width: clamp(240px, min(52.4vw, 52.4vh), 100%);
-        margin: 0 auto;
-        border-radius: 0;
-        border: none;
-        background: #fff;
-    }
-    .solar-overlay-source {
-        left: 12px;
-        right: 12px;
-    }
-}
-
-.step-diamond {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #2eaa70;
-    transform: rotate(45deg);
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-.rairsun-solar-story + .rairsun-project {
-    margin-top: 80px;
-}
-
-.rairsun-solar-desc {
-    font-size: 13px;
-    color: #444;
-    line-height: 1.6;
-    margin-bottom: 12px;
-    max-width: 500px;
-    background: rgba(255,255,255,0.9);
-    padding: 12px 16px;
-    border-radius: 8px;
-}
-
-.rairsun-solar-meta {
-    font-size: 10px;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    background: rgba(255,255,255,0.9);
-    padding: 6px 12px;
-    border-radius: 4px;
-    display: inline-block;
-}
-
 /* Titres de section RaYSun (LinkedIn / Logos) */
 .rairsun-section-title {
     font-family: 'Vevey', 'Courier New', monospace;
@@ -922,9 +535,7 @@ html {
     letter-spacing: 0.05em;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--green);
-    /* Scales with the viewport so the gap reads the same on a laptop and a
-       large display, without becoming airy on a phone. */
-    margin-bottom: clamp(64px, 9vh, 120px);
+    margin-bottom: 32px;
 }
 
 #rs-linkedin .rairsun-section-title,
@@ -960,16 +571,6 @@ html {
     width: 24px;
     height: 2px;
     background: var(--green);
-}
-
-/* Sur desktop: visible seulement quand galerie/rairsun ouvert */
-.brutal-container.show-gallery .global-menu-btn {
-    display: flex;
-    left: calc(25% + 20px);
-}
-.brutal-container.show-rairsun .global-menu-btn {
-    display: flex;
-    left: calc(0% + 20px);
 }
 
 /* Retour au sommaire RaYSun — deux lignes contre trois pour le menu global.
@@ -1012,13 +613,14 @@ html {
 
 /* --- RESPONSIVE MOBILE --- */
 @media (max-width: 1024px) {
+    /* Le logo occupe le coin gauche : les boutons retour passent à droite. */
     .mobile-back-btn {
         display: flex;
         flex-direction: column;
         gap: 5px;
         position: fixed;
         top: 20px;
-        left: 20px;
+        right: 20px;
         z-index: 999;
         background: none;
         border: none;
@@ -1037,14 +639,52 @@ html {
     .brutal-container.show-gallery .global-menu-btn,
     .brutal-container.show-rairsun .global-menu-btn {
         display: flex;
-        left: 20px;
+        left: auto;
+        right: 20px;
     }
 
     /* Les colonnes s'empilent : plus de 3e colonne à 30%, donc le bouton
-       retour repasse à gauche, sous les trois lignes du menu global. */
+       retour se range sous les trois lignes du menu global. */
     .brutal-container.show-rairsun .rairsun-back-btn {
-        left: 20px;
+        left: auto;
+        right: 20px;
         top: 56px;
+    }
+
+    .site-header {
+        position: absolute;
+    }
+    .site-header .logo {
+        font-size: 72px;
+    }
+    .identity-contact {
+        font-size: 16px;
+        line-height: 24px;
+    }
+
+    .left-col {
+        height: auto;
+        overflow: visible;
+    }
+    .hero-intro {
+        padding-top: 72px;
+        font-size: 6.5vw;
+    }
+    .sommaire {
+        min-height: 0;
+        padding: 110px 20px 40px;
+    }
+    .sommaire a {
+        font-size: 36px;
+    }
+    .right-col,
+    .brutal-container.show-gallery .right-col,
+    .brutal-container.show-rairsun .right-col {
+        padding: 40px 20px;
+    }
+    .project-item,
+    .cv-item {
+        font-size: 18px;
     }
 
     /* Cacher les anciens boutons retour mobile pour éviter le doublon */
@@ -1074,7 +714,7 @@ html {
     /* images-col cachée par défaut sur mobile */
     .images-col {
         display: none;
-        padding: 60px 5% 40px;
+        padding: 110px 5% 40px;
     }
 
     /* images-col visible uniquement quand une galerie est active */
@@ -1107,7 +747,7 @@ html {
         display: none;
         height: auto;
         overflow-y: visible;
-        padding: 60px 6% 60px;
+        padding: 110px 6% 60px;
         max-height: none;
     }
     .brutal-container.show-rairsun .rairsun-panel {
@@ -1140,36 +780,6 @@ html {
     }
 }
 
-/* Nouveaux styles spécifiques pour tes données */
-.role {
-    font-size: 14px;
-    font-weight: 900;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    background-color: var(--green);
-    color: #000;
-    display: inline-block;
-    padding: 2px 6px;
-}
-
-.degree {
-    font-size: 15px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-top: 2px;
-    text-decoration: underline;
-    text-decoration-color: var(--green);
-    text-underline-offset: 3px;
-    text-decoration-thickness: 2px;
-}
-
-.cv-item p, .project-item p:not(.role) {
-    margin-top: 8px;
-    color: #444;
-    max-width: 600px;
-    font-size: 14px;
-    line-height: 1.5;
-}
 
 /* ============================================
    MOCKUP IPHONE
@@ -1181,7 +791,7 @@ html {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    margin-top: 120px;
+    margin-top: 64px;
 }
 
 .mockup-wrap {
@@ -1192,7 +802,6 @@ html {
 }
 
 .mockup-label {
-    font-family: 'Courier New', monospace;
     font-size: 10px;
     color: #aaa;
     text-transform: uppercase;
@@ -1400,9 +1009,6 @@ html {
    DECK CHARTE GRAPHIQUE RAYSUN
    ============================================ */
 
-.rairsun-project {
-    font-family: 'Satoshi', 'Courier New', sans-serif;
-}
 
 /* SLIDES */
 .deck-slide {
