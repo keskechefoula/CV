@@ -51,20 +51,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const sections = document.querySelectorAll(".right-col .brutal-section");
 
     // 1. CLIC SUR LE SOMMAIRE (Ouvre la 2e colonne, ferme col3)
+    function showSection(href) {
+        menuLinks.forEach(l => l.classList.toggle("active", l.getAttribute("href") === href));
+        sections.forEach(s => { s.hidden = "#" + s.id !== href; });
+        document.querySelector(".right-col").scrollTop = 0;
+        if (isMobile()) document.querySelector(href).scrollIntoView();
+        projects.forEach(p => p.classList.remove("selected"));
+        container.classList.remove("show-gallery", "show-rairsun");
+        container.classList.add("show-content");
+    }
+
     menuLinks.forEach(link => {
         link.addEventListener("click", (e) => {
             e.stopPropagation();
-            // Une seule section visible : pas de saut d'ancre, la liste repart du haut.
+            // Pas de saut d'ancre (une seule section visible) : l'historique est géré à la main
+            // pour que la flèche retour du navigateur revienne à l'écran précédent.
             e.preventDefault();
-            menuLinks.forEach(l => l.classList.toggle("active", l === link));
-            sections.forEach(s => { s.hidden = "#" + s.id !== link.getAttribute("href"); });
-            document.querySelector(".right-col").scrollTop = 0;
-            if (isMobile()) document.querySelector(link.getAttribute("href")).scrollIntoView();
-            projects.forEach(p => p.classList.remove("selected"));
-            container.classList.remove("show-gallery");
-            container.classList.remove("show-rairsun");
-            container.classList.add("show-content");
+            const href = link.getAttribute("href");
+            if (!history.state || history.state.section !== href) history.pushState({ section: href }, "", href);
+            showSection(href);
         });
+    });
+
+    // Flèche retour / avant du navigateur
+    window.addEventListener("popstate", (e) => {
+        stopAllMedia();
+        if (e.state && e.state.section) showSection(e.state.section);
+        else resetAll();
     });
 
     const isMobile = () => window.innerWidth <= 1024;
@@ -312,6 +325,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function resetAll() {
+        // Retour à l'accueil par le logo ou un clic hors colonnes : nouvelle étape d'historique,
+        // pour que la flèche retour ramène à la section quittée.
+        if (history.state && history.state.section) history.pushState(null, "", location.pathname + location.search);
         projects.forEach(p => p.classList.remove("selected"));
         container.classList.remove("show-gallery");
         container.classList.remove("show-rairsun");
