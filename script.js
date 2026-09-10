@@ -73,6 +73,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Flèche du 1er écran : descend au sommaire (sans ancre, pour ne pas ajouter d'étape d'historique)
+    document.querySelector(".scroll-hint").addEventListener("click", (e) => {
+        e.preventDefault();
+        const sommaire = document.getElementById("sommaire");
+        // Desktop : la colonne défile ; mobile : la fenêtre. L'autre appel est sans effet.
+        document.querySelector(".left-col").scrollTo({ top: sommaire.offsetTop, behavior: "smooth" });
+        window.scrollTo({ top: sommaire.getBoundingClientRect().top + window.scrollY, behavior: "smooth" });
+    });
+
     // Flèche retour / avant du navigateur
     window.addEventListener("popstate", (e) => {
         stopAllMedia();
