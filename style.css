@@ -31,6 +31,14 @@ html {
     font-style: normal;
 }
 
+/* Style regular de Vevey, pour les textes secondaires (Human Kind sert de gras) */
+@font-face {
+    font-family: 'Vevey Positive';
+    src: url('fonts/Vevey-Positive.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     --green: #3BFF6A;
 }
@@ -118,7 +126,7 @@ html {
 }
 
 .site-header .logo {
-    font-size: 96px;
+    font-size: 56px;
     line-height: 0.84;
     letter-spacing: -0.02em;
     cursor: pointer;
@@ -127,12 +135,12 @@ html {
 .identity-contacts {
     display: flex;
     flex-direction: column;
-    padding-top: 10px;
+    padding-top: 5px;
 }
 
 .identity-contact {
-    font-size: 24px;
-    line-height: 33px;
+    font-size: 15px;
+    line-height: 21px;
     text-decoration: none;
 }
 
@@ -151,6 +159,16 @@ a:hover,
     scrollbar-width: none;
     background-color: #ffffff;
     border-right: 1px solid transparent;
+    /* Un geste = un écran : intro, sommaire, intro des logos, puis défilement libre
+       dans les logos (plus hauts que l'écran, donc le navigateur y laisse défiler). */
+    scroll-snap-type: y mandatory;
+}
+
+.hero-intro,
+.sommaire,
+.wl-intro,
+.wl {
+    scroll-snap-align: start;
 }
 
 /* Flèche en bas à droite du 1er écran : indique qu'il faut scroller */
@@ -187,7 +205,7 @@ a:hover,
 
 .hero-intro {
     min-height: 100vh;
-    padding: 84px 20% 0 0;
+    padding: 56px 20% 0 0;
     font-size: 2.5vw;
     line-height: 1.34;
     /* Microtypo : crénage de la fonte, lignes équilibrées sans mot orphelin,
@@ -237,7 +255,7 @@ a:hover,
 /* La liste passe en 1re colonne, sous l'en-tête fixe */
 .brutal-container.show-gallery .right-col,
 .brutal-container.show-rairsun .right-col {
-    padding: 124px 28px 72px;
+    padding: 96px 28px 72px;
     border-right: 1px solid var(--green);
 }
 
@@ -248,13 +266,7 @@ a:hover,
 .projects-list {
     display: flex;
     flex-direction: column;
-    gap: 60px;
-}
-
-.project-item,
-.cv-item {
-    font-size: 25px;
-    line-height: 1.36;
+    gap: 48px;
 }
 
 .project-item {
@@ -262,26 +274,60 @@ a:hover,
     width: fit-content;
 }
 
+/* Hiérarchie des listes : date → titre → structure → lieu.
+   Human Kind (gras) pour le titre, Positive (regular) pour le reste. */
 .project-item .date,
-.project-item h3,
-.cv-item .date,
-.cv-item h3 {
+.cv-item .date {
     display: block;
-    font: inherit;
+    margin-bottom: 8px;
+    font-family: 'Vevey Positive', 'Vevey', sans-serif;
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-feature-settings: "tnum", "case";
+}
+
+.project-item h3,
+.cv-item h3 {
+    font-size: 26px;
+    font-weight: normal;
+    line-height: 1.15;
+    text-wrap: balance;
+    font-kerning: normal;
+}
+
+.project-item .org,
+.cv-item .degree {
+    margin-top: 8px;
+    font-family: 'Vevey Positive', 'Vevey', sans-serif;
+    font-size: 18px;
+    line-height: 1.35;
+    text-wrap: balance;
+}
+
+.project-item .place {
+    margin-top: 6px;
+    font-family: 'Vevey Positive', 'Vevey', sans-serif;
+    font-size: 12px;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-feature-settings: "case";
 }
 
 .project-item.selected h3 {
     text-decoration: underline;
 }
 
-.project-item > p:not(.role, .degree),
+.project-item > p:not(.org, .place, .degree),
 .cv-item > p:not(.degree),
 .project-link {
     display: none;
 }
 
 .cv-item {
-    margin-bottom: 60px;
+    margin-bottom: 48px;
 }
 
 /* --- STYLE DE LA COLONNE IMAGES --- */
@@ -680,24 +726,41 @@ a:hover,
         position: absolute;
     }
     .site-header .logo {
-        font-size: 72px;
+        font-size: 44px;
     }
     .identity-contact {
-        font-size: 16px;
-        line-height: 24px;
+        font-size: 12px;
+        line-height: 17px;
     }
 
     .left-col {
         height: auto;
         overflow: visible;
+        scroll-snap-type: none;
     }
+    /* Téléphone : c'est la page qui défile, et la liste des expériences suit les logos.
+       Arrêts doux seulement, et pas sur les logos pour ne pas freiner le début de l'animation. */
+    html {
+        scroll-snap-type: y proximity;
+    }
+    .wl {
+        scroll-snap-align: none;
+    }
+    /* Téléphone : l'intro tient entière dans le 1er écran. Taille bornée par la largeur
+       ET par la hauteur visible (svh = sans les barres du navigateur). */
     .hero-intro {
-        padding-top: 72px;
-        font-size: 6.5vw;
+        min-height: 100svh;
+        padding: 50px 0 0;
+        font-size: min(6.4vw, 3.2svh);
+    }
+    .scroll-hint {
+        top: calc(100svh - 60px);
+        right: 16px;
+        font-size: 40px;
     }
     .sommaire {
         min-height: 0;
-        padding: 110px 20px 40px;
+        padding: 80px 20px 40px;
     }
     .sommaire a {
         font-size: 36px;
@@ -707,9 +770,17 @@ a:hover,
     .brutal-container.show-rairsun .right-col {
         padding: 40px 20px;
     }
-    .project-item,
-    .cv-item {
-        font-size: 18px;
+    .project-item h3,
+    .cv-item h3 {
+        font-size: 22px;
+    }
+    .project-item .org,
+    .cv-item .degree {
+        font-size: 16px;
+    }
+    /* Les deux listes s'enchaînent sur téléphone : on les sépare. */
+    .brutal-section + .brutal-section {
+        margin-top: 120px;
     }
 
     /* Cacher les anciens boutons retour mobile pour éviter le doublon */
@@ -739,7 +810,7 @@ a:hover,
     /* images-col cachée par défaut sur mobile */
     .images-col {
         display: none;
-        padding: 110px 5% 40px;
+        padding: 80px 5% 40px;
     }
 
     /* images-col visible uniquement quand une galerie est active */
@@ -772,7 +843,7 @@ a:hover,
         display: none;
         height: auto;
         overflow-y: visible;
-        padding: 110px 6% 60px;
+        padding: 80px 6% 60px;
         max-height: none;
     }
     .brutal-container.show-rairsun .rairsun-panel {
@@ -828,7 +899,6 @@ a:hover,
 
 .mockup-label {
     font-size: 10px;
-    color: #aaa;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }

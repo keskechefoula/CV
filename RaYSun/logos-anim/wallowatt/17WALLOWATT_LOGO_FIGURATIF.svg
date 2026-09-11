@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_32" data-name="Calque 32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17.67 10.87">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Dégradé_sans_nom_880);
+      }
+
+      .cls-2 {
+        fill: url(#Dégradé_sans_nom_880-2);
+      }
+
+      .cls-3 {
+        fill: url(#Dégradé_sans_nom_880-5);
+      }
+
+      .cls-4 {
+        fill: url(#Dégradé_sans_nom_880-3);
+      }
+
+      .cls-5 {
+        fill: url(#Dégradé_sans_nom_880-4);
+      }
+    </style>
+    <linearGradient id="Dégradé_sans_nom_880" data-name="Dégradé sans nom 880" x1="9.84" y1="8.63" x2="15.09" y2="8.63" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fdd219"/>
+      <stop offset="0" stop-color="#fccc1a"/>
+      <stop offset=".01" stop-color="#fcc91c"/>
+      <stop offset=".5" stop-color="#e10d2b"/>
+      <stop offset=".51" stop-color="#e10d2b"/>
+      <stop offset=".99" stop-color="#992835"/>
+    </linearGradient>
+    <linearGradient id="Dégradé_sans_nom_880-2" data-name="Dégradé sans nom 880" x1="13.22" y1="2.39" x2="17.67" y2="2.39" xlink:href="#Dégradé_sans_nom_880"/>
+    <linearGradient id="Dégradé_sans_nom_880-3" data-name="Dégradé sans nom 880" x1="0" y1="3.1" x2="4.45" y2="3.1" xlink:href="#Dégradé_sans_nom_880"/>
+    <linearGradient id="Dégradé_sans_nom_880-4" data-name="Dégradé sans nom 880" x1="3.38" y1="5.53" x2="11.11" y2="5.53" xlink:href="#Dégradé_sans_nom_880"/>
+    <linearGradient id="Dégradé_sans_nom_880-5" data-name="Dégradé sans nom 880" x1="13.22" y1="3.1" x2="17.67" y2="3.1" xlink:href="#Dégradé_sans_nom_880"/>
+  </defs>
+  <path class="cls-1" d="M10.8,6.78c-1.01.68-1.27,2.06-.58,3.08.69,1.02,2.07,1.29,3.07.6.39-.27.67-.64.82-1.06h0s.95-2.68.95-2.68c.04-.1-.04-.21-.15-.22l-2.84-.11h0c-.44,0-.89.11-1.29.38Z"/>
+  <ellipse class="cls-2" cx="15.44" cy="2.39" rx="2.22" ry="2.2"/>
+  <path class="cls-4" d="M4.45,2.42c.01-1.22-.97-2.22-2.2-2.23C1.02.17.01,1.15,0,2.36c0,.48.14.91.4,1.28h0s1.66,2.31,1.66,2.31c.06.09.2.09.26,0l1.71-2.27h0c.26-.36.42-.79.43-1.27Z"/>
+  <path class="cls-5" d="M5.52,10.87c-.54,0-1.08-.24-1.51-.66s-.64-.97-.63-1.57c0-.4.12-.79.33-1.13.18-.28.4-.51.67-.68,1.46-.95,2.33-2.59,2.29-4.33v-.11c.01-1.2,1.03-2.19,2.22-2.19.61,0,1.17.23,1.59.66.42.43.64.97.63,1.57,0,.73-.39,1.41-1.01,1.81-1.48.96-2.34,2.62-2.28,4.38-.01,1.25-1.03,2.25-2.22,2.25h-.09Z"/>
+  <path class="cls-3" d="M17.67,2.42c.01-1.22-.97-2.22-2.2-2.23-1.23-.01-2.24.96-2.25,2.18,0,.48.14.91.4,1.28h0s1.66,2.31,1.66,2.31c.06.09.2.09.26,0l1.71-2.27h0c.26-.36.42-.79.43-1.27Z"/>
+</svg>

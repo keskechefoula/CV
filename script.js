@@ -82,6 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
         window.scrollTo({ top: sommaire.getBoundingClientRect().top + window.scrollY, behavior: "smooth" });
     });
 
+    // Sommaire RaYSun : même principe. Une ancre (#rs-…) déclencherait popstate
+    // sans section, que le gestionnaire ci-dessous prend pour un retour à l'accueil.
+    document.querySelectorAll(".rairsun-nav a").forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.querySelector(link.getAttribute("href")).scrollIntoView({ behavior: "smooth" });
+        });
+    });
+
     // Flèche retour / avant du navigateur
     window.addEventListener("popstate", (e) => {
         stopAllMedia();
@@ -149,7 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 bq.className = 'instagram-media';
                 bq.dataset.instgrmPermalink = postUrl(id) + '?utm_source=ig_embed&utm_campaign=loading';
                 bq.dataset.instgrmVersion = '14';
-                bq.dataset.instgrmCaptioned = '';
+                // Légende du post, sauf si la galerie la refuse (data-no-caption : visuels seuls).
+                if (!('noCaption' in grid.dataset)) bq.dataset.instgrmCaptioned = '';
                 bq.style.cssText = 'background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15);margin:0;min-width:260px;padding:0;width:100%;';
 
                 wrap.appendChild(loader);
