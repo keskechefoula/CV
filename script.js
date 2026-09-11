@@ -352,6 +352,11 @@ document.addEventListener("DOMContentLoaded", () => {
         container.classList.remove("show-rairsun");
         container.classList.remove("show-content");
         setTimeout(() => galleryGroups.forEach(g => g.classList.remove("active")), 400);
+        // Remonte aussi bien .left-col (desktop) que la fenêtre (mobile) : le scroller
+        // actif dépend de la mise en page, l'autre appel est un no-op sans effet.
+        const leftCol = document.querySelector(".left-col");
+        if (leftCol) leftCol.scrollTo({ top: 0, behavior: "instant" });
+        window.scrollTo({ top: 0, behavior: "instant" });
     }
 
     // Auto-pause vidéos/iframes quand elles sortent du viewport

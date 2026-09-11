@@ -19,7 +19,7 @@ html {
 
 *::-webkit-scrollbar-thumb {
     background: var(--green);
-    border-radius: 2px;
+    border-radius: 0;
     min-height: 30px;
 }
 
@@ -126,7 +126,7 @@ html {
 }
 
 .site-header .logo {
-    font-size: 56px;
+    font-size: 38px;
     line-height: 0.84;
     letter-spacing: -0.02em;
     cursor: pointer;
@@ -139,8 +139,8 @@ html {
 }
 
 .identity-contact {
-    font-size: 15px;
-    line-height: 21px;
+    font-size: 11px;
+    line-height: 15px;
     text-decoration: none;
 }
 
@@ -155,8 +155,8 @@ a:hover,
 .left-col {
     position: relative;
     height: 100vh;
-    overflow-y: auto;
-    scrollbar-width: none;
+    overflow-y: scroll;
+    scrollbar-width: thin;
     background-color: #ffffff;
     border-right: 1px solid transparent;
     /* Un geste = un écran : intro, sommaire, intro des logos, puis défilement libre
@@ -195,9 +195,6 @@ a:hover,
     display: none;
 }
 
-.left-col::-webkit-scrollbar {
-    display: none;
-}
 
 .brutal-container.show-content .left-col {
     border-right-color: var(--green);
@@ -249,7 +246,7 @@ a:hover,
 .right-col {
     padding: 72px 36px;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 /* La liste passe en 1re colonne, sous l'en-tête fixe */
@@ -335,7 +332,7 @@ a:hover,
     padding: 80px 10% 80px 0;
     display: none;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .brutal-container.show-gallery .images-col,
@@ -350,7 +347,7 @@ a:hover,
 /* --- PANNEAU RAIRSUN --- */
 .rairsun-panel {
     padding: 60px 8% 80px;
-    overflow-y: auto;
+    overflow-y: scroll;
     height: 100vh;
     flex-direction: column;
     gap: 0;
@@ -475,7 +472,7 @@ a:hover,
 .gallery-group.active {
     display: flex;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .insta-embed-wrap {
@@ -726,11 +723,11 @@ a:hover,
         position: absolute;
     }
     .site-header .logo {
-        font-size: 44px;
+        font-size: 30px;
     }
     .identity-contact {
-        font-size: 12px;
-        line-height: 17px;
+        font-size: 9px;
+        line-height: 13px;
     }
 
     .left-col {
