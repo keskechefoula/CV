@@ -719,9 +719,6 @@ a:hover,
         top: 56px;
     }
 
-    .site-header {
-        position: absolute;
-    }
     .site-header .logo {
         font-size: 30px;
     }
