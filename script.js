@@ -409,16 +409,20 @@ document.addEventListener("DOMContentLoaded", () => {
         playing = true;
         // Laisse le scroll-snap se poser avant de mesurer l'écran
         setTimeout(play, 400);
-    }, { threshold: 0.6 }).observe(sommaire);
+    }, { threshold: 0.9 }).observe(sommaire);
 
     function play() {
         const NS = "http://www.w3.org/2000/svg";
         const link = sommaire.querySelector("a");
+        // Coordonnées relatives au bloc du sommaire : l'électron y est placé et défile avec lui.
+        // Ordinateur : le bloc fait tout l'écran. Téléphone : le Z tient dans le bloc (~200 px).
         const r = sommaire.getBoundingClientRect();
         const e = link.getBoundingClientRect();
-        const top = document.querySelector(".site-header").getBoundingClientRect().bottom + 24;
-        const L = r.left + 28, R = Math.min(r.right, innerWidth) - 28, B = Math.min(r.bottom, innerHeight) - 28;
-        const ex = e.left + e.width / 2, ey = e.top + e.height / 2;
+        const pad = parseFloat(getComputedStyle(sommaire).paddingLeft);
+        const header = document.querySelector(".site-header").getBoundingClientRect().bottom - r.top;
+        const top = Math.max(24, header + 24);
+        const L = pad, R = r.width - pad, B = r.height - 20;
+        const ex = e.left - r.left + e.width / 2, ey = e.top - r.top + e.height / 2;
 
         // Trajet A : le coin haut droit est arrondi, l'électron prend le virage sans s'arrêter.
         // Trajet B : courbe douce d'EXPERIENCES vers le bas droite.
@@ -436,7 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const dot = span("electron"), ring = span("electron-ring");
         dot.setAttribute("aria-hidden", "true");
         ring.setAttribute("aria-hidden", "true");
-        document.body.append(dot, ring);
+        sommaire.append(dot, ring);
         const lens = paths.map(p => p.getTotalLength());
 
         // Minutage (ms) : apparition, trajet A, clic, survol, trajet B, extinction

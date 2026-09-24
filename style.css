@@ -753,8 +753,10 @@ a:hover,
         right: 16px;
         font-size: 40px;
     }
+    /* Le sommaire occupe tout l'écran, comme sur ordinateur : on ne voit pas
+       en même temps le début de « Projets graphiques ». */
     .sommaire {
-        min-height: 0;
+        min-height: 100svh;
         padding: 80px 20px 40px;
     }
     .sommaire a {
@@ -1387,9 +1389,11 @@ a:hover,
 
 /* Électron du parcours de lecture en Z (script.js) : point vert avec un halo
    et une onde au « clic » */
+#sommaire { position: relative; }
+
 .electron,
 .electron-ring {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 1000;
