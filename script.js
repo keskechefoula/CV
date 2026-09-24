@@ -18,12 +18,19 @@ function initCarousel(el) {
         timer = setInterval(() => go(current + 1), 3000);
     }
 
+    let visible = false;
+
     function resetAuto() {
         clearInterval(timer);
-        startAuto();
+        if (visible) startAuto();
     }
 
-    startAuto();
+    // Défile seulement quand le post est visible : le 2e post de l'iPhone reste
+    // immobile jusqu'à ce qu'on fasse défiler l'écran jusqu'à lui.
+    new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        resetAuto();
+    }, { threshold: 0.6 }).observe(el);
 
     el.addEventListener('mousedown', e => { startX = e.clientX; el.classList.add('grabbing'); });
     el.addEventListener('mouseup', e => {
@@ -387,4 +394,99 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.insta-grid').forEach(grid => {
         embedObserver.observe(grid, { childList: true, subtree: true });
     });
+});
+
+// Électron : parcours de lecture en « Z », rejoué à chaque arrivée sur l'écran du sommaire.
+// Haut gauche (sous les contacts) → haut droite → diagonale jusqu'à EXPERIENCES
+// (pause) → bas droite, puis il s'éteint.
+document.addEventListener("DOMContentLoaded", () => {
+    const sommaire = document.getElementById("sommaire");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let playing = false;
+
+    new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting || playing) return;
+        playing = true;
+        // Laisse le scroll-snap se poser avant de mesurer l'écran
+        setTimeout(play, 400);
+    }, { threshold: 0.6 }).observe(sommaire);
+
+    function play() {
+        const NS = "http://www.w3.org/2000/svg";
+        const link = sommaire.querySelector("a");
+        const r = sommaire.getBoundingClientRect();
+        const e = link.getBoundingClientRect();
+        const top = document.querySelector(".site-header").getBoundingClientRect().bottom + 24;
+        const L = r.left + 28, R = Math.min(r.right, innerWidth) - 28, B = Math.min(r.bottom, innerHeight) - 28;
+        const ex = e.left + e.width / 2, ey = e.top + e.height / 2;
+
+        // Trajet A : le coin haut droit est arrondi, l'électron prend le virage sans s'arrêter.
+        // Trajet B : courbe douce d'EXPERIENCES vers le bas droite.
+        // Les tracés ne sont pas affichés : ils servent seulement à calculer la position.
+        const k = Math.min(160, (R - L) / 4), dx = ex - R, dy = ey - top, d = Math.hypot(dx, dy);
+        const paths = [
+            `M${L},${top} L${R - k},${top} Q${R},${top} ${R + dx / d * k},${top + dy / d * k} L${ex},${ey}`,
+            `M${ex},${ey} Q${(ex + R) / 2},${B} ${R},${B}`,
+        ].map(def => {
+            const p = document.createElementNS(NS, "path");
+            p.setAttribute("d", def);
+            return p;
+        });
+        const span = cls => Object.assign(document.createElement("span"), { className: cls });
+        const dot = span("electron"), ring = span("electron-ring");
+        dot.setAttribute("aria-hidden", "true");
+        ring.setAttribute("aria-hidden", "true");
+        document.body.append(dot, ring);
+        const lens = paths.map(p => p.getTotalLength());
+
+        // Minutage (ms) : apparition, trajet A, clic, survol, trajet B, extinction
+        const T = [300, 1700, 260, 520, 950, 380];
+        const at = T.reduce((acc, x) => [...acc, acc[acc.length - 1] + x], [0]);
+        const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        const backOut = t => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+        const clamp = t => Math.min(1, Math.max(0, t));
+
+        let t0, prev, angle = 0, clicked = false;
+
+        function frame(now) {
+            t0 ??= now;
+            const t = now - t0;
+            let seg = 0, p = 0, s = 1, o = 1;
+            if (t < at[1]) s = backOut(clamp(t / T[0]));
+            else if (t < at[2]) p = ease((t - at[1]) / T[1]);
+            else if (t < at[4]) { p = 1; s = 1 - 0.45 * Math.sin(Math.PI * clamp((t - at[2]) / T[2])); }
+            else if (t < at[5]) { seg = 1; p = ease((t - at[4]) / T[4]); }
+            else { seg = 1; p = 1; const u = clamp((t - at[5]) / T[5]); s = 1 - u * u; o = 1 - u; }
+
+            // Clic : le bouton passe en survol et une onde part du point
+            const onLink = t >= at[2] && t < at[4];
+            link.classList.toggle("electron-hover", onLink);
+            dot.classList.toggle("on-link", onLink);
+            if (onLink && !clicked) {
+                clicked = true;
+                ring.animate([
+                    { transform: `translate(${ex}px, ${ey}px) scale(0.4)`, opacity: 0.7 },
+                    { transform: `translate(${ex}px, ${ey}px) scale(3.2)`, opacity: 0 },
+                ], { duration: 700, easing: "cubic-bezier(0.2, 0.7, 0.3, 1)" });
+            }
+
+            // Vitesse → étirement du point dans le sens du mouvement
+            const dist = p * lens[seg];
+            const pt = paths[seg].getPointAtLength(dist);
+            let speed = 0;
+            if (prev) {
+                const vx = pt.x - prev.x, vy = pt.y - prev.y;
+                speed = Math.hypot(vx, vy) / Math.max(1, now - prev.now);
+                if (speed > 0.05) angle = Math.atan2(vy, vx);
+            }
+            prev = { x: pt.x, y: pt.y, now };
+            const st = Math.min(1.2, speed * 0.5);
+            dot.style.opacity = o;
+            dot.style.transform = `translate(${pt.x}px, ${pt.y}px) rotate(${angle}rad) scale(${s * (1 + st)}, ${s / (1 + st * 0.5)})`;
+
+            if (t < at[6]) requestAnimationFrame(frame);
+            else { dot.remove(); ring.remove(); link.classList.remove("electron-hover"); playing = false; }
+        }
+        requestAnimationFrame(frame);
+    }
 });

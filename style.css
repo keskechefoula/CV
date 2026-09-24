@@ -146,6 +146,7 @@ html {
 
 /* Survol : tout ce qui est cliquable se surligne en vert */
 a:hover,
+.sommaire a.electron-hover,
 .site-header .logo:hover,
 .project-item:hover {
     background-color: var(--green);
@@ -897,37 +898,50 @@ a:hover,
     letter-spacing: 0.1em;
 }
 
+/* Cadre officiel iPhone 18 Pro Max (Figma, 1470×3000, écran transparent).
+   Posé par-dessus l'écran : les coins arrondis et la Dynamic Island masquent
+   le contenu, et pointer-events: none laisse le carrousel se faire glisser. */
 .iphone {
-    width: 220px;
-    background: #111;
-    border-radius: 36px;
-    padding: 10px;
-    box-shadow:
-        0 0 0 1px #2a2a2a,
-        0 0 0 3px #1a1a1a,
-        0 20px 50px rgba(0,0,0,0.4);
+    --w: 240px;
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 1470 / 3000;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));
 }
 
-.iphone-notch {
-    width: 80px;
-    height: 20px;
-    background: #111;
-    border-radius: 0 0 14px 14px;
-    margin: 0 auto 6px;
+.iphone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('RaYSun/iphone-frame.png') center / 100% 100% no-repeat;
+    pointer-events: none;
 }
 
+/* Zone écran mesurée sur le PNG : x 75→1394, y 66→2933, rayon ≈ 190 px */
 .iphone-screen {
+    position: absolute;
+    inset: 2.2% 5.1% 2.23%;
     background: #fff;
-    border-radius: 26px;
-    overflow: hidden;
+    border-radius: calc(var(--w) * 190 / 1470);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
 }
 
+.iphone-screen::-webkit-scrollbar { display: none; }
+
+/* Heure et icônes de part et d'autre de la Dynamic Island */
 .iphone-status {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 14px 3px;
+    height: calc(var(--w) * 170 / 1470);
+    padding: 0 22px;
     font-size: 8px;
     font-weight: 700;
     font-family: 'Helvetica Neue', sans-serif;
@@ -990,7 +1004,6 @@ a:hover,
     overflow: hidden;
     cursor: grab;
     user-select: none;
-    height: 275px;
 }
 
 .carousel.grabbing { cursor: grabbing; }
@@ -1037,7 +1050,9 @@ a:hover,
 
 .cdot.active { background: #0a66c2; }
 
+/* Le fond gris du fil LinkedIn sépare un post du suivant */
 .li-reactions {
+    border-bottom: 8px solid #f4f2ee;
     background: #fff;
     padding: 6px 10px;
     display: flex;
@@ -1368,4 +1383,41 @@ a:hover,
     line-height: 1.7;
     border-left: 2px solid #FF8001;
     padding-left: 16px;
+}
+
+/* Électron du parcours de lecture en Z (script.js) : point vert avec un halo
+   et une onde au « clic » */
+.electron,
+.electron-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.electron {
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    background: var(--green);
+    box-shadow: 0 0 10px 4px rgba(59, 255, 106, 0.6);
+    opacity: 0;   /* placé et révélé par script.js dès la première image */
+    transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+/* Sur le bouton vert, le point passe au noir pour rester visible, comme un curseur */
+.electron.on-link {
+    background: #000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+}
+
+.electron-ring {
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 1.5px solid #000;
+    opacity: 0;
 }
