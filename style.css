@@ -705,6 +705,7 @@ a:hover,
     }
 
     /* Menu global visible sur mobile seulement quand galerie/rairsun ouverte */
+    .brutal-container.show-content .global-menu-btn,
     .brutal-container.show-gallery .global-menu-btn,
     .brutal-container.show-rairsun .global-menu-btn {
         display: flex;
@@ -814,6 +815,18 @@ a:hover,
     .brutal-container.show-gallery .images-col,
     .brutal-container.show-rairsun .images-col {
         display: block;
+    }
+
+    /* EXPERIENCES / FORMATIONS : page à part, l'accueil (intro, sommaire, logos) disparaît */
+    .brutal-container.show-content .left-col {
+        display: none;
+    }
+    .brutal-container.show-content .right-col {
+        padding-top: 80px;
+    }
+    /* Une seule section affichée : pas d'écart hérité de la section cachée */
+    .brutal-container.show-content .brutal-section + .brutal-section {
+        margin-top: 0;
     }
 
     /* Masquer col1 et col2 quand galerie ou rairsun actif */

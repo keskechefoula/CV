@@ -62,7 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
         menuLinks.forEach(l => l.classList.toggle("active", l.getAttribute("href") === href));
         sections.forEach(s => { s.hidden = "#" + s.id !== href; });
         document.querySelector(".right-col").scrollTop = 0;
-        if (isMobile()) document.querySelector(href).scrollIntoView();
+        // Téléphone : la section s'ouvre comme une nouvelle page (le CSS cache l'accueil),
+        // on se place en haut sans animation de défilement.
+        if (isMobile()) window.scrollTo({ top: 0, behavior: "instant" });
         projects.forEach(p => p.classList.remove("selected"));
         container.classList.remove("show-gallery", "show-rairsun");
         container.classList.add("show-content");
@@ -102,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("popstate", (e) => {
         stopAllMedia();
         if (e.state && e.state.section) showSection(e.state.section);
-        else resetAll();
+        else { resetAll(); toSommaire(); }
     });
 
     const isMobile = () => window.innerWidth <= 1024;
@@ -223,7 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (isMobile()) window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (container.classList.contains('show-content')) {
             container.classList.remove('show-content');
+            toSommaire();
         }
+    }
+
+    // Téléphone : en quittant une section, on retombe sur le sommaire et non sur l'intro
+    function toSommaire() {
+        if (!isMobile()) return;
+        const sommaire = document.getElementById("sommaire");
+        window.scrollTo({ top: sommaire.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
     }
 
     // Boutons retour (mobile) — tous les .gallery-back + #btn-back-rairsun
